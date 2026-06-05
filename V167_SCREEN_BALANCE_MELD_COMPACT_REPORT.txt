@@ -1,0 +1,21 @@
+V167 — SCREEN BALANCE + COMPACT MELD POLISH
+
+Changes made
+- Reduced the bottom dead space in the active gameplay card.
+- Hid the compact scoreboard during active card play to free vertical space.
+- Tightened the top starter/game chips and turn/redeal panel.
+- Tightened stock/discard/full pile controls and the message strip.
+- Made action buttons slightly smaller.
+- Reworked the meld area to be clearer but less vertically heavy:
+  - smaller but readable meld cards
+  - compact owner/laid-off segments
+  - lower card size inside melds
+  - vertical internal scrolling for multiple melds
+  - horizontal internal scrolling inside long meld rows
+- Made bottom player hand-count chips smaller.
+- Kept point ownership and joker exchange order logic from V165/V166.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed completely
