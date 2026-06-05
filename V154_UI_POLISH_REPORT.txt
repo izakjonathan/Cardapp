@@ -1,0 +1,21 @@
+V154 — Playable Card UI Polish
+
+Baseline:
+- Built from rummy500-v153-jokers-discard-rules.
+
+Changes:
+- Fixed the playable-card table layout so Stock / Discard / Full pile fit properly on mobile.
+- Moved the phase indicator into a cleaner status strip instead of forcing four items into one cramped row.
+- Polished the card-game header, phone-seat selector, action buttons, pile buttons, hand owner row, meld cards and opponent hand cards.
+- Added a subtle hand-scroll edge fade so horizontal hands feel intentional rather than clipped.
+- Improved selected-card affordance with a clearer raised state.
+- Made the action grid consistently two columns on phone.
+- Corrected card point values in code:
+  - 2–9 = 5 points
+  - 10–K = 10 points
+  - A and Joker = 15 points
+
+Validation:
+- npm install --no-package-lock --no-audit --no-fund
+- npx tsc --noEmit
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build

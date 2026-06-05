@@ -230,7 +230,7 @@ const RANK_ORDER: Record<Rank, number> = { A: 1, "2": 2, "3": 3, "4": 4, "5": 5,
 function cardValue(rank: Rank | "JOKER") {
   if (rank === "A" || rank === "JOKER") return 15;
   if (["10", "J", "Q", "K"].includes(rank)) return 10;
-  return Number(rank);
+  return 5;
 }
 
 function buildDeck() {
@@ -1633,6 +1633,11 @@ export default function RummyApp() {
             <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added when a player goes out.</div>
           ) : (
             <>
+              <div className="turn-status-strip">
+                <div className={`phase-pill phase-${cardState.phase}`}>{cardState.phase === "draw" ? "Draw phase" : cardState.phase === "play" ? "Play phase" : "Round over"}</div>
+                <div className="turn-status-copy">{isWatchingOtherTurn ? `Waiting for ${currentPlayer?.name || "Player"}` : cardState.phase === "draw" ? "Draw one card" : cardState.phase === "play" ? "Meld, lay off, exchange or discard" : "Start the next deal"}</div>
+              </div>
+
               <div className="card-table-row">
                 <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile">
                   <span>Stock</span>
@@ -1643,10 +1648,9 @@ export default function RummyApp() {
                   <strong>{cardLabel(topDiscard)}</strong>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
-                  <span>Whole pile</span>
+                  <span>Full pile</span>
                   <strong>{cardState.discard.length}</strong>
                 </button>
-                <div className={`phase-pill phase-${cardState.phase}`}>{cardState.phase === "draw" ? "Draw" : cardState.phase === "play" ? "Meld / discard" : "Round over"}</div>
               </div>
 
               <div className="card-message">{cardState.message}</div>
@@ -1654,9 +1658,10 @@ export default function RummyApp() {
               <div className="hand-owner-line">
                 <span>{claimedPlayer ? "Your hand" : "Current hand"}</span>
                 <strong>{activeHandPlayer?.name || "Player"}</strong>
-                {isWatchingOtherTurn ? <em>Waiting for {currentPlayer?.name || "Player"}</em> : null}
+                <em>{activeHand.length} cards</em>
               </div>
 
+              <div className="hand-scroll-wrap">
               <div className="hand-scroll" aria-label={`${activeHandPlayer?.name || "Player"} hand`}>
                 {activeHand.map((card) => (
                   <button
@@ -1669,6 +1674,7 @@ export default function RummyApp() {
                     <strong>{card.suit}</strong>
                   </button>
                 ))}
+              </div>
               </div>
 
               <div className="card-controls-grid">
