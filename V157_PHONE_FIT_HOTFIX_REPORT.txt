@@ -1,0 +1,19 @@
+V157 — PHONE FIT HOTFIX
+
+Problem seen from screenshot
+- Active card table still extended below the visible iPhone browser area.
+- The round-history card at the bottom consumed too much height during active play.
+- The hand/cards were being visually crowded by the meld area.
+
+Changes made
+- Active card rounds now use 100svh to better respect mobile browser chrome.
+- Removed the bottom round-history card during active card rounds.
+- Tightened the active gameplay grid, spacing, card piles, buttons, and message box.
+- Further compacted the active scoreboard.
+- Added an extra small-height mode that hides the scoreboard/secondary status if the viewport is short.
+- Preserved the visual playing-card style from V156.
+- Kept hand scrolling horizontal and meld scrolling internal.
+
+Validation
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: Next compiled successfully and reached page-data collection before sandbox timeout.
