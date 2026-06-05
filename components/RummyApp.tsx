@@ -441,10 +441,10 @@ function cardLabel(card?: Card) {
   return `${card.rank}${card.suit}`;
 }
 function cardFaceRank(card: Card) {
-  return isJoker(card) ? (card.asRank || "JOKER") : card.rank;
+  return isJoker(card) ? "JKR" : card.rank;
 }
 function cardFaceSuit(card: Card) {
-  return isJoker(card) ? (card.asSuit || "🃏") : card.suit;
+  return isJoker(card) ? (card.asSuit || "★") : card.suit;
 }
 function cardFaceCenter(card: Card) {
   return cardFaceSuit(card);
@@ -1691,13 +1691,8 @@ export default function RummyApp() {
                     >
                       <div className="card-corner top-corner">
                         <span>{faceRank}</span>
-                        <em>{faceSuit}</em>
                       </div>
                       <strong className="card-center">{cardFaceCenter(card)}</strong>
-                      <div className="card-corner bottom-corner" aria-hidden="true">
-                        <span>{faceRank}</span>
-                        <em>{faceSuit}</em>
-                      </div>
                     </button>
                   );
                 })}

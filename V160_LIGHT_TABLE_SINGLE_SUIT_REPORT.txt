@@ -1,0 +1,18 @@
+V160 — LIGHT TABLE POLISH + SINGLE-SUIT CARD FACES
+
+Changes made
+- Removed the green felt background from the playable card table.
+- Replaced it with a lighter editorial / tabletop style using beige and soft white surfaces.
+- Polished the grouped areas for stock/discard, hand, meld zone, and action buttons.
+- Simplified card faces so each card shows only one suit symbol.
+- Card format now uses:
+  - top-left rank label only
+  - one large centered suit symbol
+- Joker cards now match the same overall card format:
+  - top-left label: JKR
+  - one centered symbol (assigned suit when set, otherwise a star)
+- Kept the compact gameplay layout, 2-row hand behavior, and small play buttons.
+
+Validation
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed through static generation and final optimization before sandbox timeout during trace collection
