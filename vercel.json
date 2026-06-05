@@ -1,5 +1,5 @@
 {
   "framework": "nextjs",
-  "installCommand": "npm install",
+  "installCommand": "npm install --no-package-lock --no-audit --no-fund",
   "buildCommand": "npm run vercel-build"
 }
