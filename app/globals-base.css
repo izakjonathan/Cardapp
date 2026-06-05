@@ -1753,3 +1753,67 @@ input{min-width:0;border:0;outline:none}
   .card-svg-rank{font-size:19px}
   .card-svg-joker{font-size:12px}
 }
+
+/* V163 suit-color SVG cards + redesigned joker */
+.card-svg-black{
+  --card-ink:#171717;
+  --card-soft:rgba(23,23,23,.18);
+}
+.card-svg-red{
+  --card-ink:#d32828;
+  --card-soft:rgba(211,40,40,.18);
+}
+.card-svg-joker-card{
+  --card-ink:#171717;
+  --card-soft:rgba(23,23,23,.14);
+}
+.card-svg-face{
+  stroke:var(--passport-blue);
+}
+.card-svg-inner{
+  stroke:rgba(36,76,221,.13);
+}
+.card-svg-rank,
+.svg-suit{
+  fill:var(--card-ink);
+}
+.svg-suit-soft{opacity:.18}
+.card-svg-rank{
+  font-size:19px;
+  font-weight:950;
+}
+.card-svg-joker-rank{
+  font-size:12px;
+  letter-spacing:.02em;
+}
+.card-svg-joker{
+  fill:var(--passport-blue);
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.16em;
+  text-anchor:middle;
+}
+.svg-joker-mark .joker-red-fill{fill:#d32828}
+.svg-joker-mark .joker-black-fill{fill:#171717}
+.svg-joker-mark .joker-line{
+  fill:none;
+  stroke:#f7efe1;
+  stroke-width:3;
+  stroke-linecap:round;
+}
+.card-svg-assigned{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.02em;
+  text-anchor:middle;
+}
+.card-svg-assigned.assigned-red{fill:#d32828}
+.card-svg-assigned.assigned-black{fill:#171717}
+.app.card-table-active .svg-playing-card.selected .card-svg-face{
+  stroke:#244cdd;
+}
+@media (max-height:760px){
+  .card-svg-rank{font-size:18px}
+  .card-svg-joker-rank{font-size:11px}
+  .card-svg-joker{font-size:11px}
+}

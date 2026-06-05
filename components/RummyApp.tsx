@@ -453,6 +453,14 @@ function cardFaceCenter(card: Card) {
 
 type CardFaceSuit = Suit | "★";
 
+function isRedSuitValue(suit?: CardFaceSuit | null) {
+  return suit === "♥" || suit === "♦";
+}
+function svgToneClass(card: Card) {
+  if (isJoker(card)) return "card-svg-joker-card";
+  return isRedSuitValue(card.suit as Suit) ? "card-svg-red" : "card-svg-black";
+}
+
 function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: CardFaceSuit; x?: number; y?: number; scale?: number; soft?: boolean }) {
   const transform = `translate(${x} ${y}) scale(${scale}) translate(-50 -50)`;
   const className = soft ? "svg-suit svg-suit-soft" : "svg-suit";
@@ -499,6 +507,19 @@ function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: Car
   );
 }
 
+function JokerMark() {
+  return (
+    <g className="svg-joker-mark" aria-hidden="true">
+      <path className="joker-red-fill" d="M29 64 C34 47 44 39 50 31 C56 39 66 47 71 64 C63 59 56 59 50 66 C44 59 37 59 29 64 Z" />
+      <path className="joker-black-fill" d="M26 70 C34 66 42 66 50 76 C58 66 66 66 74 70 C70 84 61 91 50 91 C39 91 30 84 26 70 Z" />
+      <circle className="joker-red-fill" cx="50" cy="29" r="5" />
+      <circle className="joker-black-fill" cx="30" cy="65" r="4" />
+      <circle className="joker-red-fill" cx="70" cy="65" r="4" />
+      <path className="joker-line" d="M37 75 C43 81 57 81 63 75" />
+    </g>
+  );
+}
+
 function SvgCardFace({ card }: { card: Card }) {
   const jokerCard = isJoker(card);
   const faceSuit = cardFaceSuit(card) as CardFaceSuit;
@@ -506,28 +527,28 @@ function SvgCardFace({ card }: { card: Card }) {
   const assigned = jokerCard && card.asRank && card.asSuit;
 
   return (
-    <svg className="card-svg" viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
+    <svg className={`card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
       <defs>
         <linearGradient id={`cardSheen-${card.id}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="55%" stopColor="#fffaf0" />
-          <stop offset="100%" stopColor="#f0e5d2" />
+          <stop offset="58%" stopColor="#fffaf1" />
+          <stop offset="100%" stopColor="#f2e7d5" />
         </linearGradient>
       </defs>
       <rect className="card-svg-shadow" x="5" y="6" width="90" height="128" rx="13" />
       <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" fill={`url(#cardSheen-${card.id})`} />
       <rect className="card-svg-inner" x="9" y="9" width="82" height="120" rx="10" />
-      <text className="card-svg-rank" x="17" y="27">{faceRank}</text>
       {jokerCard ? (
         <>
-          <SuitMark suit={faceSuit} x={50} y={61} scale={0.58} />
-          <text className="card-svg-joker" x="50" y="102">JOKER</text>
-          {assigned ? <text className="card-svg-assigned" x="50" y="119">{card.asRank}{card.asSuit}</text> : null}
+          <text className="card-svg-rank card-svg-joker-rank" x="20" y="27">JKR</text>
+          <JokerMark />
+          <text className="card-svg-joker" x="50" y="105">JOKER</text>
+          {assigned ? <text className={`card-svg-assigned ${isRedSuitValue(card.asSuit) ? "assigned-red" : "assigned-black"}`} x="50" y="120">{card.asRank}{card.asSuit}</text> : null}
         </>
       ) : (
         <>
-          <SuitMark suit={faceSuit} x={50} y={72} scale={0.7} />
-          <SuitMark suit={faceSuit} x={82} y={119} scale={0.16} soft />
+          <text className="card-svg-rank" x="17" y="27">{faceRank}</text>
+          <SuitMark suit={faceSuit} x={50} y={75} scale={0.58} />
         </>
       )}
     </svg>
