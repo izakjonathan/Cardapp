@@ -1681,3 +1681,75 @@ input{min-width:0;border:0;outline:none}
   .app.card-table-active .card-center{font-size:25px}
   .app.card-table-active .joker-card .card-center{font-size:18px}
 }
+
+/* V162 SVG deck renderer */
+.app.card-table-active .svg-playing-card{
+  padding:0 !important;
+  overflow:visible;
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  display:block;
+}
+.app.card-table-active .svg-playing-card.selected{
+  transform:translateY(-5px) scale(1.035);
+  box-shadow:none !important;
+}
+.card-svg{
+  width:100%;
+  height:100%;
+  display:block;
+  overflow:visible;
+  color:var(--passport-blue);
+  filter:drop-shadow(0 5px 7px rgba(36,76,221,.10));
+}
+.card-svg-shadow{
+  fill:rgba(30,28,22,.10);
+}
+.card-svg-face{
+  stroke:var(--passport-blue);
+  stroke-width:2.8;
+}
+.card-svg-inner{
+  fill:none;
+  stroke:rgba(36,76,221,.16);
+  stroke-width:1.35;
+}
+.card-svg-rank{
+  fill:var(--passport-blue);
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:-.04em;
+  dominant-baseline:middle;
+  text-anchor:middle;
+}
+.svg-suit{fill:var(--passport-blue)}
+.svg-suit-soft{opacity:.22}
+.card-svg-joker{
+  fill:var(--passport-blue);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-anchor:middle;
+}
+.card-svg-assigned{
+  fill:rgba(36,76,221,.78);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+  text-anchor:middle;
+}
+.app.card-table-active .svg-playing-card.selected .card-svg-face{
+  stroke-width:3.4;
+}
+.app.card-table-active .svg-playing-card.selected .card-svg-inner{
+  stroke:rgba(36,76,221,.42);
+  stroke-width:2;
+}
+.app.card-table-active .svg-playing-card.selected .card-svg{
+  filter:drop-shadow(0 9px 12px rgba(36,76,221,.22));
+}
+@media (max-height:760px){
+  .card-svg-rank{font-size:19px}
+  .card-svg-joker{font-size:12px}
+}

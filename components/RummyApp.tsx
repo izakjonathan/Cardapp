@@ -450,6 +450,90 @@ function cardFaceCenter(card: Card) {
   return cardFaceSuit(card);
 }
 
+
+type CardFaceSuit = Suit | "★";
+
+function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: CardFaceSuit; x?: number; y?: number; scale?: number; soft?: boolean }) {
+  const transform = `translate(${x} ${y}) scale(${scale}) translate(-50 -50)`;
+  const className = soft ? "svg-suit svg-suit-soft" : "svg-suit";
+
+  if (suit === "♥") {
+    return (
+      <g transform={transform} className={className}>
+        <path d="M50 84 C22 59 13 43 20 29 C25 18 39 17 50 32 C61 17 75 18 80 29 C87 43 78 59 50 84 Z" />
+      </g>
+    );
+  }
+
+  if (suit === "♦") {
+    return (
+      <g transform={transform} className={className}>
+        <path d="M50 10 L82 50 L50 90 L18 50 Z" />
+      </g>
+    );
+  }
+
+  if (suit === "♣") {
+    return (
+      <g transform={transform} className={className}>
+        <circle cx="50" cy="27" r="17" />
+        <circle cx="34" cy="49" r="17" />
+        <circle cx="66" cy="49" r="17" />
+        <path d="M46 58 C45 70 37 78 31 85 L69 85 C63 78 55 70 54 58 Z" />
+      </g>
+    );
+  }
+
+  if (suit === "♠") {
+    return (
+      <g transform={transform} className={className}>
+        <path d="M50 13 C24 36 15 52 24 66 C31 76 43 72 48 62 C47 74 39 82 33 88 L67 88 C61 82 53 74 52 62 C57 72 69 76 76 66 C85 52 76 36 50 13 Z" />
+      </g>
+    );
+  }
+
+  return (
+    <g transform={transform} className={className}>
+      <path d="M50 13 L60 39 L88 39 L65 56 L74 84 L50 67 L26 84 L35 56 L12 39 L40 39 Z" />
+    </g>
+  );
+}
+
+function SvgCardFace({ card }: { card: Card }) {
+  const jokerCard = isJoker(card);
+  const faceSuit = cardFaceSuit(card) as CardFaceSuit;
+  const faceRank = cardFaceRank(card);
+  const assigned = jokerCard && card.asRank && card.asSuit;
+
+  return (
+    <svg className="card-svg" viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
+      <defs>
+        <linearGradient id={`cardSheen-${card.id}`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="55%" stopColor="#fffaf0" />
+          <stop offset="100%" stopColor="#f0e5d2" />
+        </linearGradient>
+      </defs>
+      <rect className="card-svg-shadow" x="5" y="6" width="90" height="128" rx="13" />
+      <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" fill={`url(#cardSheen-${card.id})`} />
+      <rect className="card-svg-inner" x="9" y="9" width="82" height="120" rx="10" />
+      <text className="card-svg-rank" x="17" y="27">{faceRank}</text>
+      {jokerCard ? (
+        <>
+          <SuitMark suit={faceSuit} x={50} y={61} scale={0.58} />
+          <text className="card-svg-joker" x="50" y="102">JOKER</text>
+          {assigned ? <text className="card-svg-assigned" x="50" y="119">{card.asRank}{card.asSuit}</text> : null}
+        </>
+      ) : (
+        <>
+          <SuitMark suit={faceSuit} x={50} y={72} scale={0.7} />
+          <SuitMark suit={faceSuit} x={82} y={119} scale={0.16} soft />
+        </>
+      )}
+    </svg>
+  );
+}
+
 type UiStudioTab = "type" | "space" | "radius" | "color" | "layout" | "presets";
 
 const UI_STUDIO_DEFAULTS: Record<string, string> = {
@@ -1679,20 +1763,16 @@ export default function RummyApp() {
               >
                 {activeHand.map((card) => {
                   const faceSuit = cardFaceSuit(card);
-                  const faceRank = cardFaceRank(card);
                   const jokerCard = isJoker(card);
                   return (
                     <button
                       type="button"
                       key={card.id}
                       onClick={() => toggleCard(card.id)}
-                      className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
+                      className={`playing-card svg-playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      <div className="card-corner top-corner">
-                        <span>{faceRank}</span>
-                      </div>
-                      <strong className="card-center">{cardFaceCenter(card)}</strong>
+                      <SvgCardFace card={card} />
                     </button>
                   );
                 })}

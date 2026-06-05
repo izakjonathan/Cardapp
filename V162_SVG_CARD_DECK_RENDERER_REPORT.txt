@@ -1,0 +1,22 @@
+V162 — SVG CARD DECK RENDERER
+
+Changes made
+- Replaced the simple text/card-face rendering with a reusable SVG card renderer.
+- Added a polished SVG card template with:
+  - scalable rounded card face
+  - subtle gradient surface
+  - inner border
+  - vector suit icons
+  - soft corner pip detail
+  - improved shadow treatment
+- Added vector suit shapes for spades, hearts, diamonds, and clubs instead of relying on large text glyphs.
+- Added a matching SVG joker format with a central emblem and JOKER wordmark.
+- Kept cards as React/SVG components rather than separate image files, so the deck stays sharp and easier to maintain.
+- Kept existing game logic unchanged.
+- Kept Ace-wrap run support from V159.
+- Kept the compact two-row hand behavior.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed completely
