@@ -1022,6 +1022,8 @@ export default function RummyApp() {
   const claimedPlayer = devicePlayerId ? game.players.find((player) => player.id === devicePlayerId) || null : null;
   const activeHandPlayer = claimedPlayer || currentPlayer;
   const activeHand = cardState && activeHandPlayer ? sortCards(cardState.hands[activeHandPlayer.id] || []) : [];
+  const handRows = activeHand.length > 8 ? 2 : 1;
+  const handColumns = Math.max(1, Math.ceil(activeHand.length / handRows));
   const selectedHandCards = activeHand.filter((card) => selectedCards.includes(card.id));
   const topDiscard = cardState?.discard[cardState.discard.length - 1];
   const canOperateCardTurn = Boolean(cardState && (!devicePlayerId || cardState.turnPlayerId === devicePlayerId));
@@ -1636,27 +1638,38 @@ export default function RummyApp() {
               </div>
 
               <div className="hand-scroll-wrap">
-              <div className="hand-scroll" aria-label={`${activeHandPlayer?.name || "Player"} hand`}>
+              <div
+                className={`hand-scroll ${handRows > 1 ? "two-row-hand" : ""}`}
+                style={handRows > 1 ? { gridTemplateColumns: `repeat(${handColumns}, var(--hand-card-width, 50px))`, gridTemplateRows: `repeat(${handRows}, minmax(0, 1fr))` } : undefined}
+                aria-label={`${activeHandPlayer?.name || "Player"} hand`}
+              >
                 {activeHand.map((card) => {
                   const faceSuit = cardFaceSuit(card);
                   const faceRank = cardFaceRank(card);
+                  const jokerCard = isJoker(card);
                   return (
                     <button
                       type="button"
                       key={card.id}
                       onClick={() => toggleCard(card.id)}
-                      className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${isJoker(card) ? "joker-card" : ""}`}
+                      className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      <div className="card-corner top-corner">
-                        <span>{faceRank}</span>
-                        <em>{faceSuit}</em>
-                      </div>
-                      <strong className="card-center">{cardFaceCenter(card)}</strong>
-                      <div className="card-corner bottom-corner" aria-hidden="true">
-                        <span>{faceRank}</span>
-                        <em>{faceSuit}</em>
-                      </div>
+                      {jokerCard ? (
+                        <strong className="card-center joker-word">Joker</strong>
+                      ) : (
+                        <>
+                          <div className="card-corner top-corner">
+                            <span>{faceRank}</span>
+                            <em>{faceSuit}</em>
+                          </div>
+                          <strong className="card-center">{cardFaceCenter(card)}</strong>
+                          <div className="card-corner bottom-corner" aria-hidden="true">
+                            <span>{faceRank}</span>
+                            <em>{faceSuit}</em>
+                          </div>
+                        </>
+                      )}
                     </button>
                   );
                 })}

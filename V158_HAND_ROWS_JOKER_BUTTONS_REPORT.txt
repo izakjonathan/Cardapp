@@ -1,0 +1,14 @@
+V158 — TWO-ROW HAND + SMALLER PLAY BUTTONS + SIMPLE JOKER FACE
+
+Changes made
+- Hand can now switch to a two-row layout when the card count grows past 8.
+- Two-row hand preserves left-to-right reading order and stays horizontally scrollable if needed.
+- Fixed the playable-cardgame grid row assignment so the action buttons no longer expand into a giant tall area.
+- Reduced the size of the play buttons significantly in active gameplay mode.
+- Joker cards now show a simple centered "JOKER" label instead of corner values/symbols.
+- Added smaller responsive overrides for short phone heights.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: compiled and generated static pages successfully in sandbox before timeout after completion output

@@ -1335,3 +1335,66 @@ input{min-width:0;border:0;outline:none}
   .app.card-table-active .turn-status-strip{grid-template-columns:auto;min-height:26px}
   .app.card-table-active .card-message{max-height:44px;overflow:hidden}
 }
+
+/* V158 two-row hand + smaller action buttons + simple joker face */
+.app.card-table-active .playable-cardgame{
+  grid-template-rows:auto auto auto auto auto auto auto auto minmax(0,1fr) auto;
+}
+.app.card-table-active .hand-scroll-wrap{
+  --hand-card-width:50px;
+  min-height:76px;
+}
+.app.card-table-active .hand-scroll.two-row-hand{
+  display:grid;
+  grid-auto-flow:row;
+  width:max-content;
+  align-items:start;
+  align-content:start;
+  overflow:visible;
+  gap:6px;
+  padding:2px 1px 8px;
+}
+.app.card-table-active .hand-scroll.two-row-hand .playing-card{
+  flex:initial;
+}
+.app.card-table-active .card-controls-grid{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:5px;
+  align-items:start;
+}
+.app.card-table-active .card-action{
+  min-height:28px;
+  max-height:28px;
+  border-radius:12px;
+  font-size:9.5px;
+  line-height:1.05;
+  padding:2px 3px;
+  font-weight:700;
+  white-space:normal;
+}
+.app.card-table-active .joker-card{
+  justify-items:center;
+  align-items:center;
+}
+.app.card-table-active .joker-word{
+  font-size:13px;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+@media (max-width:390px){
+  .app.card-table-active .hand-scroll-wrap{--hand-card-width:46px; min-height:70px}
+  .app.card-table-active .hand-scroll.two-row-hand{gap:5px}
+  .app.card-table-active .card-action{min-height:26px;max-height:26px;font-size:9px;padding:1px 2px}
+  .app.card-table-active .joker-word{font-size:11px}
+}
+@media (max-height:760px){
+  .app.card-table-active .playable-cardgame{gap:5px}
+  .app.card-table-active .hand-scroll-wrap{--hand-card-width:44px; min-height:68px}
+  .app.card-table-active .hand-scroll.two-row-hand{gap:4px; padding-bottom:6px}
+  .app.card-table-active .playing-card{height:62px}
+  .app.card-table-active .card-center{font-size:18px}
+  .app.card-table-active .joker-word{font-size:10px}
+  .app.card-table-active .card-action{min-height:24px;max-height:24px;font-size:8.5px}
+  .app.card-table-active .meld-zone{gap:5px}
+}
