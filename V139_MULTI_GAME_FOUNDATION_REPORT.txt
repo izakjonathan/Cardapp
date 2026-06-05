@@ -1,0 +1,26 @@
+V139 Multi-Game Foundation
+
+Built from V138.
+
+Added:
+- Local saved game library.
+- Switch between saved games without losing progress.
+- New game saves into the library.
+- Duplicate current game.
+- Delete saved game.
+- Game URL now tracks the active game ID using ?game=<id>.
+- Share link points to the active game ID.
+- Supabase sync now uses one row per game ID instead of one global current-game row.
+
+What this enables:
+- You + GF can use one shared game link.
+- Friends can use another shared game link.
+- You can keep a 4-player game and a 2-player game saved, then switch between them.
+
+Notes:
+- Anyone with a link can edit that game.
+- No authentication/permissions yet.
+- Existing legacy current game is migrated into the saved game library when possible.
+
+No scoring logic changed.
+No UI Studio logic changed except adding the Saved Games screen.

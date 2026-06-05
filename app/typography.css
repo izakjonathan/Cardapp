@@ -1,0 +1,283 @@
+/* Final typography controls */
+:root{
+  --font-size-caption:10px;
+  --font-size-body:14px;
+  --font-size-title:16px;
+  --font-size-display:28px;
+  --font-size-input:34px;
+  --font-size-score:42px;
+  --font-weight-label:700;
+  --font-weight-body:600;
+  --font-weight-title:800;
+  --font-weight-score:900;
+}
+
+.label,.modal-title,.last-round-label,.ui-studio-section{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+  line-height:1;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+.label{
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.modal-title{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.player-name,.add-round,.empty-title{
+  font-size:var(--font-size-title);
+  font-weight:var(--font-weight-title);
+  letter-spacing:-.045em;
+}
+
+.pill,.input-name,.last-round-player-name,.quick,.modal-btn,.segment button,.history-item,.form-input,.ui-control-row span,.ui-studio-tabs button,.ui-studio-wide-btn,.ui-preset-grid button{
+  font-size:var(--font-size-body);
+  font-weight:var(--font-weight-body);
+}
+
+.total{
+  font-size:var(--font-size-score);
+  font-weight:var(--font-weight-score);
+  line-height:.84;
+  letter-spacing:-.075em;
+}
+
+.round-input{
+  font-size:var(--font-size-input);
+  font-weight:var(--font-weight-score);
+  letter-spacing:-.06em;
+  text-align:center;
+}
+
+.last-round-player-score,.analytics-grid strong{
+  font-size:var(--font-size-display);
+  font-weight:var(--font-weight-score);
+  line-height:.95;
+  letter-spacing:-.04em;
+}
+
+.empty-sub,.last-round-hint,.sync-line,.analytics-grid span{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+  line-height:1;
+}
+
+.empty-sub{
+  margin-top:8px;
+}
+
+.sync-line{
+  margin:0 0 12px;
+  text-align:center;
+}
+
+.analytics-grid span,.analytics-grid strong{
+  display:block;
+  width:100%;
+  text-align:center;
+  margin:0;
+}
+
+.analytics-grid span{
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.analytics-grid strong{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.icon-btn,.closed-toggle{
+  font-size:27px;
+  font-weight:800;
+}
+
+.add-round-plus{
+  font-size:23px;
+  font-weight:780;
+}
+
+.ui-value-button{
+  font-size:var(--font-size-body);
+  font-weight:var(--font-weight-title);
+  text-align:center;
+}
+
+.color-value-button{
+  font-size:11px;
+  letter-spacing:-.02em;
+}
+
+.mini-reset{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
+.app.players-4 .player-name{font-size:calc(var(--font-size-title) * .92)}
+.app.players-4 .input-name{font-size:calc(var(--font-size-title) * .86)}
+.app.players-4 .round-input{font-size:calc(var(--font-size-input) * .86)}
+.app.players-4 .total{font-size:calc(var(--font-size-score) * .84)}
+.app.players-4 .last-round-label{font-size:calc(var(--font-size-caption) * .9)}
+.app.players-4 .last-round-player-name{font-size:calc(var(--font-size-body) * .82)}
+.app.players-4 .last-round-player-score{font-size:calc(var(--font-size-display) * .78)}
+.app.players-4 .quick{font-size:calc(var(--font-size-body) * .9)}
+
+@media (max-height:760px){
+  .total{font-size:calc(var(--font-size-score) * .88)}
+}
+
+
+/* ===== V135 TYPOGRAPHY REFINEMENTS ===== */
+
+.input-name{
+  font-size:calc(var(--font-size-title) * 1.08) !important;
+  font-weight:var(--font-weight-title) !important;
+}
+
+.ring{
+  font-size:9px !important;
+  font-weight:var(--font-weight-title) !important;
+}
+
+.last-round-label{
+  font-size:calc(var(--font-size-caption) * .92) !important;
+  font-weight:var(--font-weight-label) !important;
+}
+
+.last-round-player-name{
+  font-size:calc(var(--font-size-body) * .92) !important;
+}
+
+.last-round-player-score{
+  font-size:calc(var(--font-size-display) * .92) !important;
+}
+
+@media (max-height:760px){
+  .input-name{
+    font-size:var(--font-size-title) !important;
+  }
+}
+
+
+/* ===== V136 TYPOGRAPHY QA FIX ===== */
+
+/* Slightly calm Last Round after the V135 redesign */
+.last-round-player-name{
+  font-size:calc(var(--font-size-body) * .88) !important;
+}
+
+.last-round-player-score{
+  font-size:calc(var(--font-size-display) * .86) !important;
+}
+
+.last-round-hint{
+  font-size:calc(var(--font-size-caption) * .92) !important;
+}
+
+/* Prevent top pill text from feeling too heavy when it wraps */
+.pill{
+  font-size:calc(var(--font-size-body) * .96) !important;
+}
+
+/* Three-player mode: keep names readable but reduce vertical demand */
+.app.players-3 .input-name{
+  font-size:calc(var(--font-size-title) * 1.02) !important;
+}
+
+.app.players-3 .round-input{
+  font-size:calc(var(--font-size-input) * .94) !important;
+}
+
+
+/* V139 multi-game library */
+.game-library-main strong{
+  font-size:var(--font-size-title);
+  font-weight:var(--font-weight-title);
+  letter-spacing:-.04em;
+}
+.game-library-main span,
+.game-library-delete{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+}
+
+
+/* V140-V141 shared-game/library polish */
+.game-library-main strong{
+  font-size:var(--font-size-title);
+  font-weight:var(--font-weight-title);
+  letter-spacing:-.04em;
+}
+.game-library-main span,
+.game-library-actions button{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+}
+
+
+/* V142 group sharing invite panel */
+.invite-code-label{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+.invite-code{
+  font-size:calc(var(--font-size-display) * 1.1);
+  font-weight:var(--font-weight-score);
+  letter-spacing:.08em;
+}
+.invite-game-name{
+  font-size:var(--font-size-title);
+  font-weight:var(--font-weight-title);
+}
+.invite-url,
+.invite-player{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+}
+
+
+/* V143 shared URL QA/status */
+.room-status,
+.room-warning{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+}
+
+
+/* V144 active players / presence */
+.room-meta-row span,
+.invite-section-title,
+.presence-item,
+.presence-item small{
+  font-size:var(--font-size-caption);
+  font-weight:var(--font-weight-label);
+}
+.invite-section-title{
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+
+/* V147 Add Round primary button */
+.add-round{
+  font-weight:var(--font-weight-title) !important;
+  letter-spacing:-.035em !important;
+}
+
+
+/* V148 Add Round outline button */
+.add-round{
+  font-weight:var(--font-weight-title) !important;
+  letter-spacing:-.035em !important;
+}

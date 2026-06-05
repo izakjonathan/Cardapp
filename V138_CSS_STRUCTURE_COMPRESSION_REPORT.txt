@@ -1,0 +1,26 @@
+V138 CSS Structure / Compression Pass
+
+Built from V137.
+
+Main change:
+- Rebuilt app/globals-base.css into a more compact structured file.
+
+Sections now:
+- reset / shell
+- scoreboard
+- Last Round
+- bottom scoring controls
+- modals/settings/forms
+- UI Studio
+- player-count refinements
+- short viewport rules
+
+Preserved:
+- current visual design
+- current UI Studio controls
+- spacing/radius/density variables
+- 2/3/4-player layout rules
+- Safari bottom breathing room
+- all app/game/scoring/sync logic
+
+No TSX logic changed.

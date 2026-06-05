@@ -1,0 +1,194 @@
+/* Final blueprint theme */
+:root{
+  --passport-blue:#244cdd;
+  --passport-bg:#efe9dc;
+  --passport-muted:#244cdd;
+  --passport-faint:rgba(36,76,221,.18);
+}
+
+html,body,.app{
+  background:var(--passport-bg);
+  color:var(--passport-blue);
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:geometricPrecision;
+}
+
+button,input{
+  color:inherit;
+}
+
+.glass,.glass-soft,.scoreboard,.player-card,.rounds-card,.input-row,.pill,.quick,.icon-btn,.closed-toggle,.add-round,.modal,.sheet,.modal-btn,.share-game-btn,.typography-settings-button,.primary,.form-input,.segment,.segment button,.history-item,.analytics-grid>div,.ui-studio-tabs button,.ui-control-row,.ui-value-button,.ui-studio-wide-btn,.ui-preset-grid button,.type-control,.mini-reset{
+  background:var(--passport-bg);
+  background-image:none;
+  box-shadow:none;
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+  border:1.5px solid var(--passport-blue);
+  color:var(--passport-blue);
+  text-shadow:none;
+}
+
+.glass::before,.glass-soft::before,.scoreboard::before,.player-card::before,.rounds-card::before,.dock-panel::before,.input-row::before,.input-row::after,.pill::before,.quick::before::before,.icon-btn::before,.add-round::before,.modal::before,.sheet::before{
+  content:none;
+  display:none;
+}
+
+.dock-panel{
+  background:transparent;
+  border:0;
+}
+
+.pill,.quick,.icon-btn,.closed-toggle,.add-round,.modal-btn,.share-game-btn,.typography-settings-button,.primary,.form-input,.segment button,.ui-studio-tabs button,.ui-studio-wide-btn,.ui-preset-grid button,.ui-value-button,.mini-reset,.ui-color-picker{
+  background:transparent;
+}
+
+.closed-toggle.active,.segment button.selected,.ui-studio-tabs button.active{
+  background:var(--passport-bg);
+  color:var(--passport-blue);
+  border-color:var(--passport-blue);
+  box-shadow:inset 0 0 0 1px var(--passport-blue);
+}
+
+.ring{
+  color:var(--passport-blue) !important;
+  background:transparent;
+  border-color:var(--passport-blue);
+}
+
+.progress{
+  background:var(--passport-faint);
+  border:1px solid var(--passport-muted);
+}
+
+.progress-fill,.sync-dot{
+  background:var(--passport-blue) !important;
+}
+
+.input-name,.last-round-player-name,.history-item span{
+  color:var(--passport-blue) !important;
+}
+
+.modal-shade{
+  background:rgba(239,233,220,.74);
+}
+
+input::placeholder{
+  color:rgba(36,76,221,.42);
+}
+
+.round-input,input.round-input{
+  background:transparent !important;
+  background-color:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  border:0 !important;
+  color:var(--passport-blue) !important;
+}
+
+.add-round-plus,.ui-color-picker{
+  background:var(--passport-bg) !important;
+  border:1.5px solid var(--passport-blue) !important;
+  color:var(--passport-blue) !important;
+  box-shadow:none !important;
+}
+
+.ui-color-picker::-webkit-color-swatch-wrapper{padding:0 !important}
+.ui-color-picker::-webkit-color-swatch{border:0 !important;border-radius:999px !important}
+.ui-color-picker::-moz-color-swatch{border:0 !important;border-radius:999px !important}
+
+
+/* V139 multi-game library */
+.game-library-delete{
+  background:transparent;
+  border:1.5px solid var(--passport-blue);
+  color:var(--passport-blue);
+}
+.game-library-main{
+  background:transparent;
+  color:var(--passport-blue);
+}
+
+
+/* V140-V141 shared-game/library polish */
+.game-library-main,
+.game-library-actions button{
+  background:transparent;
+  color:var(--passport-blue);
+}
+.game-library-actions button{
+  border:1.5px solid var(--passport-blue);
+}
+
+
+/* V142 group sharing invite panel */
+.invite-card,
+.invite-player{
+  background:var(--passport-bg);
+  border:1.5px solid var(--passport-blue);
+  color:var(--passport-blue);
+}
+.invite-url{
+  opacity:.78;
+}
+
+
+/* V143 shared URL QA/status */
+.room-warning{
+  background:var(--passport-bg);
+  border:1.5px solid var(--passport-blue);
+  color:var(--passport-blue);
+}
+
+
+/* V144 active players / presence */
+.room-meta-row span,
+.presence-item{
+  background:var(--passport-bg);
+  border:1.5px solid var(--passport-blue);
+  color:var(--passport-blue);
+}
+.presence-item small{
+  opacity:.72;
+}
+
+
+/* V147 Add Round primary button */
+.add-round,
+.add-round.glass-soft{
+  background:var(--passport-blue) !important;
+  background-color:var(--passport-blue) !important;
+  border-color:var(--passport-blue) !important;
+  color:var(--passport-bg) !important;
+}
+.add-round span{
+  color:var(--passport-bg) !important;
+}
+
+
+/* V148 Add Round outline button */
+.add-round,
+.add-round.glass-soft{
+  background:var(--passport-bg) !important;
+  background-color:var(--passport-bg) !important;
+  border:1.5px solid var(--passport-blue) !important;
+  border-color:var(--passport-blue) !important;
+  color:var(--passport-blue) !important;
+}
+.add-round span{
+  color:var(--passport-blue) !important;
+}
+
+/* V150 playable card-game theme */
+.playable-cardgame,.card-empty-state,.card-message,.mini-help,.card-pile,.phase-pill,.card-action,.meld-card,.opponent-hands>div,.playing-card{
+  background:var(--passport-bg);
+  border-color:var(--passport-blue);
+  color:var(--passport-blue);
+}
+.card-action.primary-card-action{
+  background:var(--passport-blue);
+  color:var(--passport-bg);
+}

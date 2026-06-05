@@ -1,0 +1,18 @@
+V145 Remove Player -50 Buttons
+
+Built from V144.
+
+Changed:
+- Removed the dedicated "-50 (player name)" buttons.
+- Kept normal score controls:
+  - manual input
+  - +/- control
+  - quick positive buttons
+  - Add Round
+- Kept spacing between last player input card and Add Round.
+- Cleaned related penalty-button CSS.
+
+Reason:
+It is clearer to use the normal controls for negative score adjustments.
+
+No scoring/sync/multi-game logic changed.

@@ -1,0 +1,27 @@
+V150 — Full Cardgame Alpha
+
+Baseline:
+- Built from rummy500-v149-saved-games-persistence-fix.zip.
+- Kept the v149 saved-games persistence, shared URLs, Supabase room sync, active-device presence, and manual scoring controls.
+
+Added:
+- Real 52-card deck generation, shuffling, dealing, stock pile, and discard pile.
+- Playable Rummy 500 round state stored directly inside the saved game object.
+- Player hands with mobile horizontal card scrolling.
+- Turn system: draw phase, play/discard phase, next-player rotation.
+- Draw from stock or discard pile.
+- Select cards from hand.
+- Make melds from valid 3+ card sets or same-suit runs.
+- Select a meld and lay off one compatible card.
+- Discard one card to end the turn.
+- Automatic round end when a player discards their final card.
+- Automatic round scoring: melded card points minus cards left in hand.
+- Manual End Round button for testing/edge cases.
+- Deal Cards / Redeal button added to the main playable panel and settings.
+- Round scores are added to the existing scoreboard/history system.
+
+Notes:
+- This is the first playable-card alpha. It is deliberately conservative and keeps the existing scoring app fully available below the card table.
+- Multiplayer sync should carry the card round because the new card state is part of the existing game object.
+- TypeScript check passed with `npx tsc --noEmit`.
+- Next production build compiled successfully in the sandbox, then the sandbox process hit an EPIPE during Next's worker/type-validation phase. This appears environment-related; no TypeScript errors were reported.

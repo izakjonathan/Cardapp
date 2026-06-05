@@ -1,0 +1,18 @@
+V144 Active Players / Presence
+
+Built from V143.
+
+Added:
+- Room label: Room ABC123.
+- Shared game label.
+- Anyone with link can edit label.
+- Connected devices list in Invite Players.
+- Connected device count in Settings.
+- Supabase Realtime presence channel per game room.
+- Local fallback presence when cloud/realtime is unavailable.
+
+Notes:
+- Presence is per game ID, so each saved/shared game has its own connected-device list.
+- Anyone with the shared link can still edit the game.
+- No authentication/permissions added yet.
+- No scoring logic changed.

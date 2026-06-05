@@ -1,0 +1,21 @@
+V142 Group Sharing Invite Panel
+
+Built from V141.
+
+Added:
+- Invite Players panel.
+- Room/game code display.
+- Current game share URL display.
+- Copy link action for the current game.
+- Native share action when supported.
+- Room code shown in Settings.
+- Invite button in Settings.
+- Invite current button in Saved Games.
+
+Purpose:
+Makes shared multi-game usage clearer for groups:
+- You + GF can copy/share the 2-player game room.
+- 4-player group can copy/share the 4-player game room.
+- Each room still syncs independently by game ID.
+
+No scoring logic changed.

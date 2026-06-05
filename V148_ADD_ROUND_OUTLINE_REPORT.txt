@@ -1,0 +1,13 @@
+V148 Add Round Outline Button
+
+Built from V147.
+
+Changed:
+- Reverted Add Round button to the old outline style.
+- Beige fill.
+- Blue border.
+- Blue text.
+- Kept the plus/circle removed.
+- Kept button size, placement, and functionality.
+
+No scoring/sync/multi-game logic changed.
