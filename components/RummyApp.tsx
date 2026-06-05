@@ -28,6 +28,7 @@ type CardGameState = {
   drewWholeDiscard?: boolean;
   meldedAfterWholeDiscard?: boolean;
   message: string;
+  penalties?: Record<string, number>;
 };
 type CloudGame = Game & { __sync?: { clientId: string; version: number } };
 
@@ -294,6 +295,7 @@ function createCardRound(players: Player[], dealerId: string): CardGameState {
     drewThisTurn: false,
     drewWholeDiscard: false,
     meldedAfterWholeDiscard: false,
+    penalties: {},
     message: "Draw from stock, top discard, or pick up the whole discard pile."
   };
 }
@@ -393,7 +395,7 @@ function handPoints(cards: Card[]) {
 function calculateCardRoundScores(state: CardGameState, players: Player[]) {
   const scores: Record<string, number> = {};
   players.forEach((player) => {
-    scores[player.id] = meldPoints(state.melds, player.id) - handPoints(state.hands[player.id] || []);
+    scores[player.id] = meldPoints(state.melds, player.id) - handPoints(state.hands[player.id] || []) + Number(state.penalties?.[player.id] || 0);
   });
   return scores;
 }
@@ -563,8 +565,6 @@ export default function RummyApp() {
   const [game, setGame] = useState<Game>(() => createDefaultGame());
   const [savedGames, setSavedGames] = useState<Game[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [inputs, setInputs] = useState<Record<string, string>>({});
-  const [closedBy, setClosedBy] = useState<string | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [typographyOpen, setTypographyOpen] = useState(false);
   const [uiStudioTab, setUiStudioTab] = useState<UiStudioTab>("type");
@@ -581,7 +581,6 @@ export default function RummyApp() {
   const [names, setNames] = useState<string[]>(DEFAULT_PLAYERS.map((p) => p.name));
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("loading");
   const [roomLoadStatus, setRoomLoadStatus] = useState<"idle" | "loading" | "loaded" | "missing">("idle");
-  const [isCommitting, setIsCommitting] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "copied" | "shared">("idle");
   const [connectedDevices, setConnectedDevices] = useState<DevicePresence[]>([]);
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
@@ -1166,6 +1165,12 @@ export default function RummyApp() {
       const hand = removeCards(state.hands[state.turnPlayerId] || [], [card.id]);
       const nextDealer = state.dealerId;
       const nextTurn = nextPlayerId(previous.players, state.turnPlayerId);
+      const wholeDiscardPenalty = Boolean(state.drewWholeDiscard && !state.meldedAfterWholeDiscard);
+      const penaltyMessage = wholeDiscardPenalty ? " They did not make a meld after taking the whole discard pile, so a -50 penalty will be included when the round closes." : "";
+      const nextPenalties = wholeDiscardPenalty
+        ? { ...(state.penalties || {}), [state.turnPlayerId]: Number(state.penalties?.[state.turnPlayerId] || 0) - 50 }
+        : (state.penalties || {});
+
       const afterDiscard: CardGameState = {
         ...state,
         hands: { ...state.hands, [state.turnPlayerId]: hand },
@@ -1175,21 +1180,15 @@ export default function RummyApp() {
         drewThisTurn: false,
         drewWholeDiscard: false,
         meldedAfterWholeDiscard: false,
-        message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} discarded ${cardLabel(card)}. Next: ${previous.players.find((player) => player.id === nextTurn)?.name || "Player"}.`
+        penalties: nextPenalties,
+        message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} discarded ${cardLabel(card)}. Next: ${previous.players.find((player) => player.id === nextTurn)?.name || "Player"}.${penaltyMessage}`
       };
-
-      const wholeDiscardPenalty = Boolean(state.drewWholeDiscard && !state.meldedAfterWholeDiscard);
-      const penaltyRound: Round | null = wholeDiscardPenalty
-        ? { id: crypto.randomUUID(), scores: Object.fromEntries(previous.players.map((player) => [player.id, player.id === state.turnPlayerId ? -50 : 0])), closedBy: null, starterId: previous.starterId }
-        : null;
-      const nextRoundsWithPenalty = penaltyRound ? [...previous.rounds, penaltyRound] : previous.rounds;
-      const penaltyMessage = wholeDiscardPenalty ? " They did not make a meld after taking the whole discard pile, so -50 was added." : "";
 
       if (hand.length === 0) {
         const scores = calculateCardRoundScores(afterDiscard, previous.players);
         const round: Round = { id: afterDiscard.roundId, scores, closedBy: state.turnPlayerId, starterId: previous.starterId };
-        const nextRounds = [...nextRoundsWithPenalty, round];
-        const draft = { ...previous, rounds: nextRounds, cardGame: { ...afterDiscard, phase: "roundOver" as const, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} went out. Scores were added automatically.${penaltyMessage}` }, starterId: nextStarterId(previous.players, nextDealer) };
+        const nextRounds = [...previous.rounds, round];
+        const draft = { ...previous, rounds: nextRounds, cardGame: { ...afterDiscard, phase: "roundOver" as const, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} closed by discarding their last card. Scores were added automatically, including the +15 closing bonus.${penaltyMessage}` }, starterId: nextStarterId(previous.players, nextDealer) };
         const nextTotals = totals(draft);
         const winnerPlayer = previous.players.find((player) => (nextTotals[player.id] || 0) >= previous.targetScore);
         if (winnerPlayer) {
@@ -1200,23 +1199,13 @@ export default function RummyApp() {
         return draft;
       }
 
-      return { ...previous, rounds: nextRoundsWithPenalty, cardGame: { ...afterDiscard, message: afterDiscard.message + penaltyMessage } };
+      return { ...previous, cardGame: afterDiscard };
     });
     setSelectedCards([]);
     setSelectedMeldId(null);
   }
 
-  function endPlayableRoundNow() {
-    if (!cardState) return;
-    setGame((previous: Game) => {
-      const state = previous.cardGame;
-      if (!state) return previous;
-      const scores = calculateCardRoundScores(state, previous.players);
-      const round: Round = { id: state.roundId, scores, closedBy: state.turnPlayerId, starterId: previous.starterId };
-      return { ...previous, rounds: [...previous.rounds, round], cardGame: { ...state, phase: "roundOver", message: "Round ended and scores were added." }, starterId: nextStarterId(previous.players, state.dealerId) };
-    });
-    setSelectedCards([]);
-  }
+
 
   function createGame() {
     const players = DEFAULT_PLAYERS.slice(0, playerCount).map((player, index) => ({ ...player, name: names[index]?.trim() || player.name }));
@@ -1228,56 +1217,14 @@ export default function RummyApp() {
       return next;
     });
     if (nextGame.gameId) setUrlGameId(nextGame.gameId);
-    setInputs({}); setClosedBy(null); setGameOpen(false); haptic([8, 18, 8]);
+    setGameOpen(false); haptic([8, 18, 8]);
   }
 
   function toggleStarter() {
     setGame((previous: Game) => ({ ...previous, starterId: nextStarterId(previous.players, previous.starterId) }));
   }
 
-  function quick(playerId: string, amount: number) {
-    if (isCommitting) return;
-    setInputs((previous: Record<string, string>) => ({ ...previous, [playerId]: String((Number(previous[playerId] || 0) || 0) + amount) }));
-    haptic(8);
-  }
 
-  function negative(playerId: string) {
-    if (isCommitting) return;
-    setInputs((previous: Record<string, string>) => {
-      const value = String(previous[playerId] || "0");
-      return { ...previous, [playerId]: value.startsWith("-") ? value.slice(1) : `-${value || "0"}` };
-    });
-  }
-
-  function addRound() {
-    if (isCommitting) return;
-    if (!game.gameId) { setGameOpen(true); return; }
-
-    setIsCommitting(true);
-
-    const scores: Record<string, number> = {};
-    game.players.forEach((player) => { scores[player.id] = Number(String(inputs[player.id] || "0").replace(",", ".")) || 0; });
-    const round: Round = { id: crypto.randomUUID(), scores, closedBy, starterId: game.starterId };
-
-    setGame((previous: Game) => {
-      const nextRounds = [...previous.rounds, round];
-      const nextStarter = nextStarterId(previous.players, previous.starterId);
-      const draft = { ...previous, rounds: nextRounds, starterId: nextStarter };
-      const nextTotals = totals(draft);
-      const winnerPlayer = previous.players.find((player) => (nextTotals[player.id] || 0) >= previous.targetScore);
-      if (winnerPlayer) {
-        const item: HistoryItem = { gameId: previous.gameId || crypto.randomUUID(), gameName: previous.gameName, winnerName: winnerPlayer.name, rounds: activeRounds(nextRounds).length, finishedAt: new Date().toISOString() };
-        setHistory((old: HistoryItem[]) => [item, ...old].slice(0, 20));
-        return { ...draft, status: "finished", winnerId: winnerPlayer.id };
-      }
-      return draft;
-    });
-
-    setInputs({});
-    setClosedBy(null);
-    haptic([8, 18, 8]);
-    setTimeout(() => setIsCommitting(false), 220);
-  }
 
   function undo() {
     setGame((previous: Game) => {
@@ -1290,9 +1237,9 @@ export default function RummyApp() {
     haptic([10, 24, 10]);
   }
 
-  function resetGame() { setGame((previous: Game) => ({ ...previous, rounds: [], status: "active", winnerId: null })); setInputs({}); setClosedBy(null); setSettingsOpen(false); }
-  function rematch() { setGame((previous: Game) => ({ ...previous, gameId: crypto.randomUUID(), gameName: `${previous.gameName} rematch`, rounds: [], status: "active", winnerId: null })); setInputs({}); setClosedBy(null); }
-  function newSetup() { setGame(createDefaultGame()); setInputs({}); setClosedBy(null); setGameOpen(true); }
+  function resetGame() { setGame((previous: Game) => ({ ...previous, rounds: [], status: "active", winnerId: null, cardGame: null })); setSettingsOpen(false); }
+  function rematch() { setGame((previous: Game) => ({ ...previous, gameId: crypto.randomUUID(), gameName: `${previous.gameName} rematch`, rounds: [], status: "active", winnerId: null, cardGame: null })); }
+  function newSetup() { setGame(createDefaultGame()); setGameOpen(true); }
 
   
   function uiValue(name: string) {
@@ -1460,8 +1407,6 @@ export default function RummyApp() {
     applyingRemote.current = true;
     currentSignature.current = gameSignature(opened);
     setGame(opened);
-    setInputs({});
-    setClosedBy(null);
     setGamesOpen(false);
     if (opened.gameId) {
       setUrlGameId(opened.gameId);
@@ -1498,8 +1443,6 @@ export default function RummyApp() {
       archived: false
     });
     setGame(copy);
-    setInputs({});
-    setClosedBy(null);
     setGamesOpen(false);
     haptic([8, 18, 8]);
   }
@@ -1630,7 +1573,7 @@ export default function RummyApp() {
           </div>
 
           {!cardState ? (
-            <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added when a player goes out.</div>
+            <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added only when a player closes by discarding their last card.</div>
           ) : (
             <>
               <div className="turn-status-strip">
@@ -1682,7 +1625,6 @@ export default function RummyApp() {
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !selectedMeldId || !canOperateCardTurn} onClick={layOffSelected} className="glass-soft card-action">Lay off</button>
                 <button type="button" disabled={!canExchangeJoker || !canOperateCardTurn} onClick={exchangeSelectedJoker} className="glass-soft card-action">Exchange joker</button>
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !canOperateCardTurn} onClick={discardSelected} className="glass-soft card-action">Discard</button>
-                <button type="button" onClick={endPlayableRoundNow} className="glass-soft card-action">End round</button>
               </div>
 
               <div className="meld-zone">
@@ -1751,22 +1693,6 @@ export default function RummyApp() {
         </section>
       </div>
 
-      <section className="dock">
-        <div className={`glass dock-panel ${isCommitting ? "is-committing" : ""}`}>
-          {game.players.map((player) => (
-            <div key={player.id} className="input-row input-transition">
-              <div className="input-main">
-                <div className="input-name" style={{ color: player.color }}>{player.name}</div>
-                <button type="button" disabled={isCommitting} onClick={() => negative(player.id)} className="icon-btn">−</button>
-                <input disabled={isCommitting} value={inputs[player.id] || ""} onChange={(event) => setInputs((previous: Record<string, string>) => ({ ...previous, [player.id]: event.target.value }))} inputMode="decimal" placeholder="0" className="round-input" />
-                <button type="button" disabled={isCommitting} onClick={() => setClosedBy(closedBy === player.id ? null : player.id)} className={`icon-btn closed-toggle ${closedBy === player.id ? "active" : ""}`} aria-label={`Mark ${player.name} closed`}>✓</button>
-              </div>
-              <div className="quick-grid">{[5, 10, 25, 50].map((amount) => <button key={amount} disabled={isCommitting} type="button" onClick={() => quick(player.id, amount)} className="quick">+{amount}</button>)}</div>
-            </div>
-          ))}
-          <button type="button" disabled={isCommitting} onClick={addRound} className="glass-soft add-round"><span>{isCommitting ? "Adding…" : "Add round"}</span></button>
-        </div>
-      </section>
 
       {settingsOpen && (
         <>
