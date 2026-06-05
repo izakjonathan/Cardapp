@@ -1,0 +1,12 @@
+V161 — CARDS ONLY WHITE + SMALLER SUIT SYMBOLS
+
+Changes made
+- Changed the playable game UI so only the actual playing cards use the white card surface.
+- Moved the other gameplay surfaces (seat buttons, phase strip, stock/discard/full-pile cards, message box, action buttons, meld help, meld cards, and player count chips) back to a beige/tinted surface.
+- Toned down the grouped panel backgrounds for the stock row, hand zone, and meld zone so they no longer read as white cards.
+- Reduced the large center suit symbol size on cards.
+- Reduced the joker center symbol size to match the tighter card look.
+
+Validation
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: compiled successfully and reached page-data collection before sandbox timeout
