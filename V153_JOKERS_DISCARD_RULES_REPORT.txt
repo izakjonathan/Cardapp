@@ -1,0 +1,25 @@
+V153 — Jokers + discard-pile rule pass
+
+Baseline
+- Built from rummy500-v152-vercel-install-fix.zip.
+- Kept the V152 Vercel install fix, Node 24 setting, saved games, shared rooms, phone-seat mode, and playable-cardgame foundation.
+
+Added
+- Deck is now 56 cards: the normal 52-card deck plus 4 jokers.
+- Jokers are worth 15 points.
+- Aces are worth 15 points.
+- 2–9 are worth 5 points.
+- 10, J, Q, and K are worth 10 points.
+- Jokers can be used inside sets and runs.
+- When a joker is used, the meld display shows what card the joker represents, for example 🃏=7♣.
+- Players can lay off a joker onto an existing meld. The app assigns the joker to the next valid card.
+- Players can exchange a joker from a meld by selecting the matching real card in their hand, selecting the meld, and pressing Exchange joker.
+- The exchanged joker goes back into that player's hand and can be used again.
+- Players can now pick up only the top discard or the whole discard pile.
+- If a player picks up the whole discard pile, the app requires them to make a new meld that turn.
+- If they discard without making a meld after taking the whole discard pile, the app automatically adds a -50 penalty round for that player.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund completed successfully.
+- npx tsc --noEmit passed.
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build compiled successfully and generated static pages, but the local sandbox timed out during final trace collection. This is the same late-stage sandbox behavior seen before; TypeScript and compile validation passed.

@@ -13,7 +13,7 @@ type SyncStatus = "loading" | "synced" | "syncing" | "offline";
 type DevicePresence = { clientId: string; name: string; joinedAt: string; gameName: string };
 type Suit = "♠" | "♥" | "♦" | "♣";
 type Rank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "J" | "Q" | "K";
-type Card = { id: string; suit: Suit; rank: Rank; value: number };
+type Card = { id: string; suit: Suit | "🃏"; rank: Rank | "JOKER"; value: number; joker?: boolean; asSuit?: Suit; asRank?: Rank };
 type Meld = { id: string; ownerId: string; cards: Card[]; kind: "set" | "run" };
 type CardGameState = {
   roundId: string;
@@ -25,6 +25,8 @@ type CardGameState = {
   hands: Record<string, Card[]>;
   melds: Meld[];
   drewThisTurn: boolean;
+  drewWholeDiscard?: boolean;
+  meldedAfterWholeDiscard?: boolean;
   message: string;
 };
 type CloudGame = Game & { __sync?: { clientId: string; version: number } };
@@ -225,14 +227,16 @@ const SUITS: Suit[] = ["♠", "♥", "♦", "♣"];
 const RANKS: Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 const RANK_ORDER: Record<Rank, number> = { A: 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, J: 11, Q: 12, K: 13 };
 
-function cardValue(rank: Rank) {
-  if (rank === "A") return 15;
+function cardValue(rank: Rank | "JOKER") {
+  if (rank === "A" || rank === "JOKER") return 15;
   if (["10", "J", "Q", "K"].includes(rank)) return 10;
   return Number(rank);
 }
 
 function buildDeck() {
-  return SUITS.flatMap((suit) => RANKS.map((rank) => ({ id: `${rank}${suit}`, suit, rank, value: cardValue(rank) })));
+  const normalDeck = SUITS.flatMap((suit) => RANKS.map((rank) => ({ id: `${rank}${suit}`, suit, rank, value: cardValue(rank) } as Card)));
+  const jokers = Array.from({ length: 4 }, (_item, index) => ({ id: `JOKER-${index + 1}`, suit: "🃏" as const, rank: "JOKER" as const, value: 15, joker: true }));
+  return [...normalDeck, ...jokers];
 }
 
 function shuffleCards(cards: Card[]) {
@@ -244,8 +248,17 @@ function shuffleCards(cards: Card[]) {
   return next;
 }
 
+function effectiveRank(card: Card) { return card.asRank || (card.rank === "JOKER" ? "A" : card.rank); }
+function effectiveSuit(card: Card) { return card.asSuit || (card.suit === "🃏" ? "♠" : card.suit); }
+function isJoker(card: Card) { return Boolean(card.joker || card.rank === "JOKER"); }
+function asCard(joker: Card, rank: Rank, suit: Suit): Card { return { ...joker, asRank: rank, asSuit: suit }; }
+function clearJoker(card: Card): Card { return isJoker(card) ? { id: card.id, suit: "🃏", rank: "JOKER", value: 15, joker: true } : card; }
 function sortCards(cards: Card[]) {
-  return [...cards].sort((a, b) => a.suit.localeCompare(b.suit) || RANK_ORDER[a.rank] - RANK_ORDER[b.rank]);
+  return [...cards].sort((a, b) => {
+    const jokerDiff = Number(isJoker(a)) - Number(isJoker(b));
+    if (jokerDiff !== 0) return jokerDiff;
+    return effectiveSuit(a).localeCompare(effectiveSuit(b)) || RANK_ORDER[effectiveRank(a)] - RANK_ORDER[effectiveRank(b)];
+  });
 }
 
 function nextPlayerId(players: Player[], currentPlayerId: string) {
@@ -279,7 +292,9 @@ function createCardRound(players: Player[], dealerId: string): CardGameState {
     hands,
     melds: [],
     drewThisTurn: false,
-    message: "Draw from stock or discard to start your turn."
+    drewWholeDiscard: false,
+    meldedAfterWholeDiscard: false,
+    message: "Draw from stock, top discard, or pick up the whole discard pile."
   };
 }
 
@@ -292,25 +307,79 @@ function sameCardSet(a: Card[], b: Card[]) {
   return a.length === b.length && a.every((card) => b.some((other) => other.id === card.id));
 }
 
-function classifyMeld(cards: Card[]): "set" | "run" | null {
-  if (cards.length < 3) return null;
-  const sameRank = cards.every((card) => card.rank === cards[0].rank);
-  const uniqueSuits = new Set(cards.map((card) => card.suit));
-  if (sameRank && uniqueSuits.size === cards.length) return "set";
-
-  const sameSuit = cards.every((card) => card.suit === cards[0].suit);
-  const ordered = sortCards(cards);
-  const sequential = ordered.every((card, index) => index === 0 || RANK_ORDER[card.rank] === RANK_ORDER[ordered[index - 1].rank] + 1);
-  return sameSuit && sequential ? "run" : null;
+function createAssignedSet(cards: Card[]): { kind: "set"; cards: Card[] } | null {
+  const natural = cards.filter((card) => !isJoker(card));
+  const jokers = cards.filter(isJoker);
+  const baseRank = (natural[0]?.rank || "A") as Rank;
+  if (!natural.every((card) => card.rank === baseRank)) return null;
+  const usedSuits = new Set(natural.map((card) => card.suit as Suit));
+  if (usedSuits.size !== natural.length) return null;
+  const availableSuits = SUITS.filter((suit) => !usedSuits.has(suit));
+  if (jokers.length > availableSuits.length) return null;
+  return { kind: "set", cards: sortCards([...natural, ...jokers.map((joker, index) => asCard(joker, baseRank, availableSuits[index]))]) };
 }
 
-function canLayOff(card: Card, meld: Meld) {
-  if (meld.kind === "set") return meld.cards.every((item) => item.rank === card.rank) && !meld.cards.some((item) => item.suit === card.suit);
+function createAssignedRun(cards: Card[]): { kind: "run"; cards: Card[] } | null {
+  const natural = cards.filter((card) => !isJoker(card));
+  const jokers = cards.filter(isJoker);
+  const baseSuit = (natural[0]?.suit || "♠") as Suit;
+  if (!natural.every((card) => card.suit === baseSuit)) return null;
+  const ranks = natural.map((card) => RANK_ORDER[card.rank as Rank]).sort((a, b) => a - b);
+  if (new Set(ranks).size !== ranks.length) return null;
+
+  const length = cards.length;
+  const possibleStarts = Array.from({ length: 14 - length }, (_item, index) => index + 1);
+  for (const start of possibleStarts) {
+    const sequence = Array.from({ length }, (_item, index) => start + index);
+    if (!ranks.every((rank) => sequence.includes(rank))) continue;
+    const missing = sequence.filter((rank) => !ranks.includes(rank));
+    if (missing.length !== jokers.length) continue;
+    const assignedJokers = jokers.map((joker, index) => {
+      const rank = RANKS.find((item) => RANK_ORDER[item] === missing[index]) || "A";
+      return asCard(joker, rank, baseSuit);
+    });
+    return { kind: "run", cards: sortCards([...natural, ...assignedJokers]) };
+  }
+
+  return null;
+}
+
+function classifyMeld(cards: Card[]): { kind: "set" | "run"; cards: Card[] } | null {
+  if (cards.length < 3) return null;
+  return createAssignedSet(cards) || createAssignedRun(cards);
+}
+
+function getLayOffCard(card: Card, meld: Meld): Card | null {
+  if (meld.kind === "set") {
+    const rank = effectiveRank(meld.cards[0]);
+    const usedSuits = new Set(meld.cards.map(effectiveSuit));
+    if (isJoker(card)) {
+      const suit = SUITS.find((item) => !usedSuits.has(item));
+      return suit ? asCard(card, rank, suit) : null;
+    }
+    return card.rank === rank && !usedSuits.has(card.suit as Suit) ? card : null;
+  }
+
   const ordered = sortCards(meld.cards);
-  if (!ordered.every((item) => item.suit === card.suit)) return false;
-  const first = RANK_ORDER[ordered[0].rank];
-  const last = RANK_ORDER[ordered[ordered.length - 1].rank];
-  return RANK_ORDER[card.rank] === first - 1 || RANK_ORDER[card.rank] === last + 1;
+  const suit = effectiveSuit(ordered[0]);
+  const first = RANK_ORDER[effectiveRank(ordered[0])];
+  const last = RANK_ORDER[effectiveRank(ordered[ordered.length - 1])];
+
+  if (isJoker(card)) {
+    if (first > 1) return asCard(card, RANKS.find((rank) => RANK_ORDER[rank] === first - 1) || "A", suit);
+    if (last < 13) return asCard(card, RANKS.find((rank) => RANK_ORDER[rank] === last + 1) || "K", suit);
+    return null;
+  }
+
+  if (card.suit !== suit) return null;
+  return RANK_ORDER[card.rank as Rank] === first - 1 || RANK_ORDER[card.rank as Rank] === last + 1 ? card : null;
+}
+
+function canLayOff(card: Card, meld: Meld) { return Boolean(getLayOffCard(card, meld)); }
+
+function findExchangeInMeld(handCard: Card, meld: Meld) {
+  if (isJoker(handCard)) return null;
+  return meld.cards.find((card) => isJoker(card) && card.asRank === handCard.rank && card.asSuit === handCard.suit) || null;
 }
 
 function meldPoints(melds: Meld[], playerId: string) {
@@ -330,7 +399,9 @@ function calculateCardRoundScores(state: CardGameState, players: Player[]) {
 }
 
 function cardLabel(card?: Card) {
-  return card ? `${card.rank}${card.suit}` : "—";
+  if (!card) return "—";
+  if (isJoker(card)) return card.asRank && card.asSuit ? `🃏=${card.asRank}${card.asSuit}` : "🃏";
+  return `${card.rank}${card.suit}`;
 }
 
 type UiStudioTab = "type" | "space" | "radius" | "color" | "layout" | "presets";
@@ -924,6 +995,8 @@ export default function RummyApp() {
   const selectedHandCards = activeHand.filter((card) => selectedCards.includes(card.id));
   const topDiscard = cardState?.discard[cardState.discard.length - 1];
   const canOperateCardTurn = Boolean(cardState && (!devicePlayerId || cardState.turnPlayerId === devicePlayerId));
+  const selectedMeld = cardState && selectedMeldId ? cardState.melds.find((meld) => meld.id === selectedMeldId) || null : null;
+  const canExchangeJoker = Boolean(cardState?.phase === "play" && selectedMeld && selectedHandCards.length === 1 && findExchangeInMeld(selectedHandCards[0], selectedMeld));
   const isWatchingOtherTurn = Boolean(cardState && devicePlayerId && cardState.turnPlayerId !== devicePlayerId);
 
   function showDeviceTurnMessage() {
@@ -963,7 +1036,7 @@ export default function RummyApp() {
       const card = stock.shift();
       if (!card) return previous;
       const hand = sortCards([...(state.hands[state.turnPlayerId] || []), card]);
-      return { ...previous, cardGame: { ...state, stock, discard: nextDiscard, hands: { ...state.hands, [state.turnPlayerId]: hand }, phase: "play", drewThisTurn: true, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} drew from stock.` } };
+      return { ...previous, cardGame: { ...state, stock, discard: nextDiscard, hands: { ...state.hands, [state.turnPlayerId]: hand }, phase: "play", drewThisTurn: true, drewWholeDiscard: false, meldedAfterWholeDiscard: false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} drew from stock.` } };
     });
     setSelectedCards([]);
   }
@@ -978,7 +1051,32 @@ export default function RummyApp() {
       const card = discard.pop();
       if (!card) return previous;
       const hand = sortCards([...(state.hands[state.turnPlayerId] || []), card]);
-      return { ...previous, cardGame: { ...state, discard, hands: { ...state.hands, [state.turnPlayerId]: hand }, phase: "play", drewThisTurn: true, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} picked up ${cardLabel(card)}.` } };
+      return { ...previous, cardGame: { ...state, discard, hands: { ...state.hands, [state.turnPlayerId]: hand }, phase: "play", drewThisTurn: true, drewWholeDiscard: false, meldedAfterWholeDiscard: false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} picked up ${cardLabel(card)}.` } };
+    });
+    setSelectedCards([]);
+  }
+
+  function drawWholeDiscardPile() {
+    if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
+    if (!cardState || cardState.phase !== "draw") return;
+    setGame((previous: Game) => {
+      const state = previous.cardGame;
+      if (!state || state.phase !== "draw" || state.discard.length === 0) return previous;
+      const pickedUp = [...state.discard];
+      const hand = sortCards([...(state.hands[state.turnPlayerId] || []), ...pickedUp]);
+      return {
+        ...previous,
+        cardGame: {
+          ...state,
+          discard: [],
+          hands: { ...state.hands, [state.turnPlayerId]: hand },
+          phase: "play",
+          drewThisTurn: true,
+          drewWholeDiscard: true,
+          meldedAfterWholeDiscard: false,
+          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} picked up the whole discard pile. They must make a meld this turn or take a -50 penalty.`
+        }
+      };
     });
     setSelectedCards([]);
   }
@@ -986,8 +1084,8 @@ export default function RummyApp() {
   function makeMeld() {
     if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
     if (!cardState || !currentPlayer || selectedHandCards.length < 3) return;
-    const kind = classifyMeld(selectedHandCards);
-    if (!kind) {
+    const assignedMeld = classifyMeld(selectedHandCards);
+    if (!assignedMeld) {
       setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "Select 3+ cards of the same rank, or a same-suit run." } } : previous);
       return;
     }
@@ -996,8 +1094,8 @@ export default function RummyApp() {
       if (!state || state.phase !== "play") return previous;
       const hand = state.hands[state.turnPlayerId] || [];
       if (!sameCardSet(selectedHandCards, hand.filter((card) => selectedCards.includes(card.id)))) return previous;
-      const meld: Meld = { id: crypto.randomUUID(), ownerId: state.turnPlayerId, cards: sortCards(selectedHandCards), kind };
-      return { ...previous, cardGame: { ...state, hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, selectedCards) }, melds: [...state.melds, meld], message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} made a ${kind}. Discard to end the turn.` } };
+      const meld: Meld = { id: crypto.randomUUID(), ownerId: state.turnPlayerId, cards: assignedMeld.cards, kind: assignedMeld.kind };
+      return { ...previous, cardGame: { ...state, hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, selectedCards) }, melds: [...state.melds, meld], meldedAfterWholeDiscard: state.meldedAfterWholeDiscard || state.drewWholeDiscard || false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} made a ${assignedMeld.kind}. Discard to end the turn.` } };
     });
     setSelectedCards([]);
   }
@@ -1007,7 +1105,8 @@ export default function RummyApp() {
     if (!cardState || !selectedMeldId || selectedHandCards.length !== 1) return;
     const card = selectedHandCards[0];
     const targetMeld = cardState.melds.find((meld) => meld.id === selectedMeldId);
-    if (!targetMeld || !canLayOff(card, targetMeld)) {
+    const layOffCard = targetMeld ? getLayOffCard(card, targetMeld) : null;
+    if (!targetMeld || !layOffCard) {
       setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "That card cannot be laid off on the selected meld." } } : previous);
       return;
     }
@@ -1019,8 +1118,37 @@ export default function RummyApp() {
         cardGame: {
           ...state,
           hands: { ...state.hands, [state.turnPlayerId]: removeCards(state.hands[state.turnPlayerId] || [], [card.id]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: sortCards([...meld.cards, card]) } : meld),
-          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(card)}.`
+          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: sortCards([...meld.cards, layOffCard]) } : meld),
+          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(layOffCard)}.`
+        }
+      };
+    });
+    setSelectedCards([]);
+    setSelectedMeldId(null);
+  }
+
+  function exchangeSelectedJoker() {
+    if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
+    if (!cardState || !selectedMeldId || selectedHandCards.length !== 1) return;
+    const handCard = selectedHandCards[0];
+    const targetMeld = cardState.melds.find((meld) => meld.id === selectedMeldId);
+    const joker = targetMeld ? findExchangeInMeld(handCard, targetMeld) : null;
+    if (!targetMeld || !joker) {
+      setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "Select the real card from your hand and the meld where the matching joker is used." } } : previous);
+      return;
+    }
+
+    setGame((previous: Game) => {
+      const state = previous.cardGame;
+      if (!state || state.phase !== "play") return previous;
+      const cleanJoker = clearJoker(joker);
+      return {
+        ...previous,
+        cardGame: {
+          ...state,
+          hands: { ...state.hands, [state.turnPlayerId]: sortCards([...removeCards(state.hands[state.turnPlayerId] || [], [handCard.id]), cleanJoker]) },
+          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: sortCards(meld.cards.map((card) => card.id === joker.id ? handCard : card)) } : meld),
+          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} exchanged ${cardLabel(handCard)} for a joker.`
         }
       };
     });
@@ -1045,14 +1173,23 @@ export default function RummyApp() {
         turnPlayerId: nextTurn,
         phase: "draw",
         drewThisTurn: false,
+        drewWholeDiscard: false,
+        meldedAfterWholeDiscard: false,
         message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} discarded ${cardLabel(card)}. Next: ${previous.players.find((player) => player.id === nextTurn)?.name || "Player"}.`
       };
+
+      const wholeDiscardPenalty = Boolean(state.drewWholeDiscard && !state.meldedAfterWholeDiscard);
+      const penaltyRound: Round | null = wholeDiscardPenalty
+        ? { id: crypto.randomUUID(), scores: Object.fromEntries(previous.players.map((player) => [player.id, player.id === state.turnPlayerId ? -50 : 0])), closedBy: null, starterId: previous.starterId }
+        : null;
+      const nextRoundsWithPenalty = penaltyRound ? [...previous.rounds, penaltyRound] : previous.rounds;
+      const penaltyMessage = wholeDiscardPenalty ? " They did not make a meld after taking the whole discard pile, so -50 was added." : "";
 
       if (hand.length === 0) {
         const scores = calculateCardRoundScores(afterDiscard, previous.players);
         const round: Round = { id: afterDiscard.roundId, scores, closedBy: state.turnPlayerId, starterId: previous.starterId };
-        const nextRounds = [...previous.rounds, round];
-        const draft = { ...previous, rounds: nextRounds, cardGame: { ...afterDiscard, phase: "roundOver" as const, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} went out. Scores were added automatically.` }, starterId: nextStarterId(previous.players, nextDealer) };
+        const nextRounds = [...nextRoundsWithPenalty, round];
+        const draft = { ...previous, rounds: nextRounds, cardGame: { ...afterDiscard, phase: "roundOver" as const, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} went out. Scores were added automatically.${penaltyMessage}` }, starterId: nextStarterId(previous.players, nextDealer) };
         const nextTotals = totals(draft);
         const winnerPlayer = previous.players.find((player) => (nextTotals[player.id] || 0) >= previous.targetScore);
         if (winnerPlayer) {
@@ -1063,7 +1200,7 @@ export default function RummyApp() {
         return draft;
       }
 
-      return { ...previous, cardGame: afterDiscard };
+      return { ...previous, rounds: nextRoundsWithPenalty, cardGame: { ...afterDiscard, message: afterDiscard.message + penaltyMessage } };
     });
     setSelectedCards([]);
     setSelectedMeldId(null);
@@ -1493,7 +1630,7 @@ export default function RummyApp() {
           </div>
 
           {!cardState ? (
-            <div className="card-empty-state">Deal a real deck, play turns, make melds, lay off cards, discard, and automatic round scores are added when a player goes out.</div>
+            <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added when a player goes out.</div>
           ) : (
             <>
               <div className="card-table-row">
@@ -1504,6 +1641,10 @@ export default function RummyApp() {
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile">
                   <span>Discard</span>
                   <strong>{cardLabel(topDiscard)}</strong>
+                </button>
+                <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
+                  <span>Whole pile</span>
+                  <strong>{cardState.discard.length}</strong>
                 </button>
                 <div className={`phase-pill phase-${cardState.phase}`}>{cardState.phase === "draw" ? "Draw" : cardState.phase === "play" ? "Meld / discard" : "Round over"}</div>
               </div>
@@ -1533,13 +1674,14 @@ export default function RummyApp() {
               <div className="card-controls-grid">
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length < 3 || !canOperateCardTurn} onClick={makeMeld} className="glass-soft card-action">Make meld</button>
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !selectedMeldId || !canOperateCardTurn} onClick={layOffSelected} className="glass-soft card-action">Lay off</button>
+                <button type="button" disabled={!canExchangeJoker || !canOperateCardTurn} onClick={exchangeSelectedJoker} className="glass-soft card-action">Exchange joker</button>
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !canOperateCardTurn} onClick={discardSelected} className="glass-soft card-action">Discard</button>
                 <button type="button" onClick={endPlayableRoundNow} className="glass-soft card-action">End round</button>
               </div>
 
               <div className="meld-zone">
                 {cardState.melds.length === 0 ? (
-                  <div className="mini-help">Melds will appear here. Tap a meld, then select one card to lay off.</div>
+                  <div className="mini-help">Melds will appear here. Tap a meld, then select one card to lay off or exchange a matching joker.</div>
                 ) : cardState.melds.map((meld) => {
                   const owner = game.players.find((player) => player.id === meld.ownerId);
                   return (
