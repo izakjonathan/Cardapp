@@ -405,6 +405,16 @@ function cardLabel(card?: Card) {
   if (isJoker(card)) return card.asRank && card.asSuit ? `🃏=${card.asRank}${card.asSuit}` : "🃏";
   return `${card.rank}${card.suit}`;
 }
+function cardFaceRank(card: Card) {
+  return isJoker(card) ? (card.asRank || "J") : card.rank;
+}
+function cardFaceSuit(card: Card) {
+  return isJoker(card) ? (card.asSuit || "🃏") : card.suit;
+}
+function cardFaceCenter(card: Card) {
+  if (isJoker(card)) return card.asRank && card.asSuit ? `${card.asRank}${card.asSuit}` : "🃏";
+  return card.suit;
+}
 
 type UiStudioTab = "type" | "space" | "radius" | "color" | "layout" | "presets";
 
@@ -538,8 +548,29 @@ function getShareUrl(game: Game) {
 }
 
 
-type ScoreboardProps = { game: Game; scoreTotals: Record<string, number> };
-const Scoreboard = memo(function Scoreboard({ game, scoreTotals }: ScoreboardProps) {
+type ScoreboardProps = { game: Game; scoreTotals: Record<string, number>; compact?: boolean; activePlayerId?: string | null };
+const Scoreboard = memo(function Scoreboard({ game, scoreTotals, compact = false, activePlayerId = null }: ScoreboardProps) {
+  if (compact) {
+    return (
+      <section className="glass scoreboard scoreboard-stable compact-scoreboard">
+        <div className="label">Scoreboard</div>
+        <div className="compact-score-grid">
+          {game.players.map((player) => {
+            const total = scoreTotals[player.id] || 0;
+            const progress = Math.max(0, Math.min(100, Math.round((total / game.targetScore) * 100)));
+            return (
+              <div key={player.id} className={`glass-soft compact-score-chip ${player.id === activePlayerId ? "active" : ""}`}>
+                <div className="compact-score-name" style={{ color: player.color }}>{player.name}</div>
+                <div className="compact-score-total">{total}</div>
+                <div className="compact-score-progress"><div className="progress-fill" style={{ width: `${progress}%`, background: player.color }} /></div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="glass scoreboard scoreboard-stable">
       <div className="label">Scoreboard</div>
@@ -1543,7 +1574,7 @@ export default function RummyApp() {
   }
 
   return (
-    <motion.main className={`app players-${game.players.length}`} initial={{ opacity: 0.98 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
+    <motion.main className={`app players-${game.players.length} ${cardState ? "card-table-active" : ""}`} initial={{ opacity: 0.98 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
       <div className="bg" aria-hidden="true" />
       <div className="ui">
         <header className="header">
@@ -1551,7 +1582,7 @@ export default function RummyApp() {
           <button type="button" onClick={() => setSettingsOpen(true)} className="glass-soft pill">{game.gameId ? `${game.gameName} · ${game.targetScore}` : "No game"}<span className={`sync-dot sync-${syncStatus}`} /></button>
         </header>
 
-        <Scoreboard game={game} scoreTotals={scoreTotals} />
+        <Scoreboard game={game} scoreTotals={scoreTotals} compact={Boolean(cardState)} activePlayerId={cardState?.turnPlayerId || null} />
 
         <section className="glass playable-cardgame">
           <div className="playable-topline">
@@ -1606,17 +1637,29 @@ export default function RummyApp() {
 
               <div className="hand-scroll-wrap">
               <div className="hand-scroll" aria-label={`${activeHandPlayer?.name || "Player"} hand`}>
-                {activeHand.map((card) => (
-                  <button
-                    type="button"
-                    key={card.id}
-                    onClick={() => toggleCard(card.id)}
-                    className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${card.suit === "♥" || card.suit === "♦" ? "red-card" : ""}`}
-                  >
-                    <span>{card.rank}</span>
-                    <strong>{card.suit}</strong>
-                  </button>
-                ))}
+                {activeHand.map((card) => {
+                  const faceSuit = cardFaceSuit(card);
+                  const faceRank = cardFaceRank(card);
+                  return (
+                    <button
+                      type="button"
+                      key={card.id}
+                      onClick={() => toggleCard(card.id)}
+                      className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${isJoker(card) ? "joker-card" : ""}`}
+                      aria-label={cardLabel(card)}
+                    >
+                      <div className="card-corner top-corner">
+                        <span>{faceRank}</span>
+                        <em>{faceSuit}</em>
+                      </div>
+                      <strong className="card-center">{cardFaceCenter(card)}</strong>
+                      <div className="card-corner bottom-corner" aria-hidden="true">
+                        <span>{faceRank}</span>
+                        <em>{faceSuit}</em>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
               </div>
 
@@ -1656,7 +1699,7 @@ export default function RummyApp() {
         <section className="rounds">
           <button
             type="button"
-            className="glass rounds-card"
+            className={`glass rounds-card ${cardState ? "compact-rounds-card" : ""}` }
             onClick={() => setShowRoundsPopup(true)}
             aria-label="Open rounds overview"
           >
