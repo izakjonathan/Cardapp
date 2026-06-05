@@ -2503,3 +2503,137 @@ input{min-width:0;border:0;outline:none}
   .app.card-table-active .meld-svg-card{flex-basis:39px;width:39px;min-width:39px;height:55px}
   .app.card-table-active .meld-svg-card .card-svg{width:39px;height:55px}
 }
+
+/* V168: robust meld tray layout for many melds/cards */
+.app.card-table-active .playable-cardgame{
+  grid-template-rows:auto auto auto auto auto auto minmax(0,1fr) auto;
+}
+.app.card-table-active .meld-zone{
+  min-height:148px;
+  max-height:214px;
+  padding:8px;
+  gap:8px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  align-content:start;
+}
+.app.card-table-active .rendered-meld-card{
+  width:100%;
+  min-height:96px;
+  padding:9px 10px 10px;
+  gap:7px;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  align-content:start;
+  overflow:hidden;
+  border-radius:18px;
+}
+.app.card-table-active .rendered-meld-card.selected{
+  box-shadow:inset 0 0 0 2px var(--passport-blue), 0 4px 14px rgba(36,76,221,.08);
+}
+.app.card-table-active .meld-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:20px;
+  padding:0 0 5px;
+  border-bottom:1px solid rgba(36,76,221,.12);
+}
+.app.card-table-active .meld-heading span{
+  font-size:10px;
+  line-height:1;
+  letter-spacing:.18em;
+  white-space:nowrap;
+}
+.app.card-table-active .meld-heading strong{
+  justify-self:auto;
+  min-height:20px;
+  max-width:54%;
+  padding:4px 9px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:9px;
+  line-height:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.app.card-table-active .meld-card-tray{
+  min-width:0;
+  display:flex;
+  gap:7px;
+  align-items:flex-start;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:3px 1px 2px;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+}
+.app.card-table-active .meld-owned-card{
+  flex:0 0 42px;
+  width:42px;
+  min-width:42px;
+  display:grid;
+  grid-template-rows:59px 12px;
+  gap:3px;
+  align-items:start;
+  justify-items:center;
+  scroll-snap-align:start;
+}
+.app.card-table-active .meld-owned-card .meld-svg-card,
+.app.card-table-active .meld-owned-card .card-svg{
+  width:42px;
+  height:59px;
+}
+.app.card-table-active .meld-owned-card em{
+  max-width:100%;
+  min-height:12px;
+  font-style:normal;
+  font-size:7px;
+  line-height:1;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:rgba(36,76,221,.78);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.app.card-table-active .meld-owned-card.layoff-owned-card em{
+  color:var(--passport-blue);
+  font-weight:900;
+}
+.app.card-table-active .meld-segments,
+.app.card-table-active .meld-owner-segment,
+.app.card-table-active .meld-svg-row,
+.app.card-table-active .meld-owner-label{
+  all:unset;
+}
+.app.card-table-active .mini-help{
+  min-height:96px;
+  display:flex;
+  align-items:center;
+}
+.app.card-table-active .opponent-hands{
+  flex-shrink:0;
+}
+@media (max-height:760px){
+  .app.card-table-active .meld-zone{min-height:130px;max-height:178px;padding:7px;gap:7px}
+  .app.card-table-active .rendered-meld-card{min-height:84px;padding:8px 9px;gap:6px}
+  .app.card-table-active .meld-owned-card{flex-basis:37px;width:37px;min-width:37px;grid-template-rows:52px 11px;gap:2px}
+  .app.card-table-active .meld-owned-card .meld-svg-card,
+  .app.card-table-active .meld-owned-card .card-svg{width:37px;height:52px}
+  .app.card-table-active .meld-owned-card em{font-size:6.5px}
+  .app.card-table-active .meld-heading{min-height:18px;padding-bottom:4px}
+  .app.card-table-active .meld-heading span{font-size:9px}
+  .app.card-table-active .meld-heading strong{min-height:18px;font-size:8px;padding:3px 8px}
+}
+@media (max-width:390px){
+  .app.card-table-active .meld-zone{min-height:134px;max-height:190px}
+  .app.card-table-active .meld-owned-card{flex-basis:38px;width:38px;min-width:38px;grid-template-rows:53px 11px}
+  .app.card-table-active .meld-owned-card .meld-svg-card,
+  .app.card-table-active .meld-owned-card .card-svg{width:38px;height:53px}
+}

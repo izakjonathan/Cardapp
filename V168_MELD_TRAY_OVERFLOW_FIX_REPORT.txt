@@ -1,0 +1,16 @@
+V168 — MELD TRAY OVERFLOW FIX
+
+Changes made
+- Rebuilt meld rendering so large melds and many point-owner groups no longer stack over each other.
+- Replaced repeated Made by / Laid off by stacked groups with a compact card tray.
+- Each card in a meld now shows the point owner underneath the rendered SVG card.
+- Lay-off ownership remains visible without creating tall repeated label blocks.
+- Meld rows scroll horizontally for long melds.
+- Meld section scrolls vertically for many melds.
+- Preserved point ownership logic and stable joker exchange order.
+- Kept V167 screen-balance improvements.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed completely
