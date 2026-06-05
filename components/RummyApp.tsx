@@ -262,6 +262,39 @@ function sortCards(cards: Card[]) {
   });
 }
 
+const RUN_CYCLE: Rank[] = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
+const RUN_POSITION = RUN_CYCLE.reduce((acc, rank, index) => ({ ...acc, [rank]: index }), {} as Record<Rank, number>);
+
+function cyclicRankAt(index: number) {
+  return RUN_CYCLE[((index % RUN_CYCLE.length) + RUN_CYCLE.length) % RUN_CYCLE.length];
+}
+
+function orderCyclicRun(cards: Card[]) {
+  if (cards.length === 0 || cards.length > RUN_CYCLE.length) return null;
+  const suit = effectiveSuit(cards[0]);
+  if (!cards.every((card) => effectiveSuit(card) === suit)) return null;
+
+  const positions = cards.map((card) => RUN_POSITION[effectiveRank(card)]);
+  if (positions.some((position) => position === undefined)) return null;
+  if (new Set(positions).size !== positions.length) return null;
+
+  for (let start = 0; start < RUN_CYCLE.length; start += 1) {
+    const sequence = Array.from({ length: cards.length }, (_item, index) => (start + index) % RUN_CYCLE.length);
+    if (!positions.every((position) => sequence.includes(position))) continue;
+    const ordered = sequence
+      .map((position) => cards.find((card) => RUN_POSITION[effectiveRank(card)] === position))
+      .filter(Boolean) as Card[];
+    if (ordered.length === cards.length) return { cards: ordered, suit, start, sequence };
+  }
+
+  return null;
+}
+
+function orderMeldCards(meld: Meld, cards: Card[]) {
+  if (meld.kind === "run") return orderCyclicRun(cards)?.cards || cards;
+  return sortCards(cards);
+}
+
 function nextPlayerId(players: Player[], currentPlayerId: string) {
   const index = players.findIndex((player) => player.id === currentPlayerId);
   return players[((index < 0 ? 0 : index) + 1) % players.length]?.id || players[0]?.id || currentPlayerId;
@@ -326,26 +359,29 @@ function createAssignedRun(cards: Card[]): { kind: "run"; cards: Card[] } | null
   const jokers = cards.filter(isJoker);
   const baseSuit = (natural[0]?.suit || "♠") as Suit;
   if (!natural.every((card) => card.suit === baseSuit)) return null;
-  const ranks = natural.map((card) => RANK_ORDER[card.rank as Rank]).sort((a, b) => a - b);
-  if (new Set(ranks).size !== ranks.length) return null;
+  if (cards.length > RUN_CYCLE.length) return null;
 
-  const length = cards.length;
-  const possibleStarts = Array.from({ length: 14 - length }, (_item, index) => index + 1);
-  for (const start of possibleStarts) {
-    const sequence = Array.from({ length }, (_item, index) => start + index);
-    if (!ranks.every((rank) => sequence.includes(rank))) continue;
-    const missing = sequence.filter((rank) => !ranks.includes(rank));
-    if (missing.length !== jokers.length) continue;
-    const assignedJokers = jokers.map((joker, index) => {
-      const rank = RANKS.find((item) => RANK_ORDER[item] === missing[index]) || "A";
-      return asCard(joker, rank, baseSuit);
-    });
-    return { kind: "run", cards: sortCards([...natural, ...assignedJokers]) };
+  const naturalPositions = natural.map((card) => RUN_POSITION[card.rank as Rank]);
+  if (new Set(naturalPositions).size !== naturalPositions.length) return null;
+
+  for (let start = 0; start < RUN_CYCLE.length; start += 1) {
+    const sequence = Array.from({ length: cards.length }, (_item, index) => (start + index) % RUN_CYCLE.length);
+    if (!naturalPositions.every((position) => sequence.includes(position))) continue;
+
+    const missingPositions = sequence.filter((position) => !naturalPositions.includes(position));
+    if (missingPositions.length !== jokers.length) continue;
+
+    const assignedJokers = jokers.map((joker, index) => asCard(joker, cyclicRankAt(missingPositions[index]), baseSuit));
+    const assignedCards = [...natural, ...assignedJokers];
+    const ordered = sequence
+      .map((position) => assignedCards.find((card) => RUN_POSITION[effectiveRank(card)] === position))
+      .filter(Boolean) as Card[];
+
+    if (ordered.length === cards.length) return { kind: "run", cards: ordered };
   }
 
   return null;
 }
-
 function classifyMeld(cards: Card[]): { kind: "set" | "run"; cards: Card[] } | null {
   if (cards.length < 3) return null;
   return createAssignedSet(cards) || createAssignedRun(cards);
@@ -362,21 +398,20 @@ function getLayOffCard(card: Card, meld: Meld): Card | null {
     return card.rank === rank && !usedSuits.has(card.suit as Suit) ? card : null;
   }
 
-  const ordered = sortCards(meld.cards);
-  const suit = effectiveSuit(ordered[0]);
-  const first = RANK_ORDER[effectiveRank(ordered[0])];
-  const last = RANK_ORDER[effectiveRank(ordered[ordered.length - 1])];
+  const orderedRun = orderCyclicRun(meld.cards);
+  if (!orderedRun || orderedRun.cards.length >= RUN_CYCLE.length) return null;
+
+  const previousRank = cyclicRankAt(orderedRun.start - 1);
+  const nextRank = cyclicRankAt(orderedRun.start + orderedRun.cards.length);
+  const suit = orderedRun.suit as Suit;
 
   if (isJoker(card)) {
-    if (first > 1) return asCard(card, RANKS.find((rank) => RANK_ORDER[rank] === first - 1) || "A", suit);
-    if (last < 13) return asCard(card, RANKS.find((rank) => RANK_ORDER[rank] === last + 1) || "K", suit);
-    return null;
+    return asCard(card, nextRank, suit);
   }
 
   if (card.suit !== suit) return null;
-  return RANK_ORDER[card.rank as Rank] === first - 1 || RANK_ORDER[card.rank as Rank] === last + 1 ? card : null;
+  return card.rank === previousRank || card.rank === nextRank ? card : null;
 }
-
 function canLayOff(card: Card, meld: Meld) { return Boolean(getLayOffCard(card, meld)); }
 
 function findExchangeInMeld(handCard: Card, meld: Meld) {
@@ -406,14 +441,13 @@ function cardLabel(card?: Card) {
   return `${card.rank}${card.suit}`;
 }
 function cardFaceRank(card: Card) {
-  return isJoker(card) ? (card.asRank || "J") : card.rank;
+  return isJoker(card) ? (card.asRank || "JOKER") : card.rank;
 }
 function cardFaceSuit(card: Card) {
   return isJoker(card) ? (card.asSuit || "🃏") : card.suit;
 }
 function cardFaceCenter(card: Card) {
-  if (isJoker(card)) return card.asRank && card.asSuit ? `${card.asRank}${card.asSuit}` : "🃏";
-  return card.suit;
+  return cardFaceSuit(card);
 }
 
 type UiStudioTab = "type" | "space" | "radius" | "color" | "layout" | "presets";
@@ -1150,7 +1184,7 @@ export default function RummyApp() {
         cardGame: {
           ...state,
           hands: { ...state.hands, [state.turnPlayerId]: removeCards(state.hands[state.turnPlayerId] || [], [card.id]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: sortCards([...meld.cards, layOffCard]) } : meld),
+          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: orderMeldCards(meld, [...meld.cards, layOffCard]) } : meld),
           message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(layOffCard)}.`
         }
       };
@@ -1655,21 +1689,15 @@ export default function RummyApp() {
                       className={`playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      {jokerCard ? (
-                        <strong className="card-center joker-word">Joker</strong>
-                      ) : (
-                        <>
-                          <div className="card-corner top-corner">
-                            <span>{faceRank}</span>
-                            <em>{faceSuit}</em>
-                          </div>
-                          <strong className="card-center">{cardFaceCenter(card)}</strong>
-                          <div className="card-corner bottom-corner" aria-hidden="true">
-                            <span>{faceRank}</span>
-                            <em>{faceSuit}</em>
-                          </div>
-                        </>
-                      )}
+                      <div className="card-corner top-corner">
+                        <span>{faceRank}</span>
+                        <em>{faceSuit}</em>
+                      </div>
+                      <strong className="card-center">{cardFaceCenter(card)}</strong>
+                      <div className="card-corner bottom-corner" aria-hidden="true">
+                        <span>{faceRank}</span>
+                        <em>{faceSuit}</em>
+                      </div>
                     </button>
                   );
                 })}
