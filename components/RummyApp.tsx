@@ -426,6 +426,24 @@ function meldPoints(melds: Meld[], playerId: string) {
   }, 0);
 }
 
+function cardPointOwnerId(card: Card, meld: Meld) {
+  return card.pointOwnerId || meld.ownerId;
+}
+
+function pointOwnerSegments(meld: Meld) {
+  const segments: { ownerId: string; cards: Card[] }[] = [];
+  meld.cards.forEach((card) => {
+    const ownerId = cardPointOwnerId(card, meld);
+    const last = segments[segments.length - 1];
+    if (last && last.ownerId === ownerId) {
+      last.cards.push(card);
+    } else {
+      segments.push({ ownerId, cards: [card] });
+    }
+  });
+  return segments;
+}
+
 function handPoints(cards: Card[]) {
   return cards.reduce((sum, card) => sum + card.value, 0);
 }
@@ -513,15 +531,13 @@ function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: Car
 function JokerMark() {
   return (
     <g className="svg-joker-mark" aria-hidden="true">
-      <path className="joker-red-fill" d="M29 64 C34 47 44 39 50 31 C56 39 66 47 71 64 C63 59 56 59 50 66 C44 59 37 59 29 64 Z" />
-      <path className="joker-black-fill" d="M26 70 C34 66 42 66 50 76 C58 66 66 66 74 70 C70 84 61 91 50 91 C39 91 30 84 26 70 Z" />
-      <circle className="joker-red-fill" cx="50" cy="29" r="5" />
-      <circle className="joker-black-fill" cx="30" cy="65" r="4" />
-      <circle className="joker-red-fill" cx="70" cy="65" r="4" />
-      <path className="joker-line" d="M37 75 C43 81 57 81 63 75" />
+      <path className="joker-red-fill" d="M50 22 L62 45 L88 49 L69 67 L74 93 L50 80 L26 93 L31 67 L12 49 L38 45 Z" />
+      <path className="joker-black-fill" d="M50 31 L58 48 L77 51 L63 64 L67 82 L50 73 L33 82 L37 64 L23 51 L42 48 Z" />
+      <circle className="joker-red-fill" cx="50" cy="22" r="5" />
     </g>
   );
 }
+
 
 function SvgCardFace({ card }: { card: Card }) {
   const jokerCard = isJoker(card);
@@ -1795,19 +1811,30 @@ export default function RummyApp() {
               <div className="meld-zone">
                 {cardState.melds.length === 0 ? (
                   <div className="mini-help">Melds will appear here. Tap a meld, then select one card to lay off or exchange a matching joker.</div>
-                ) : cardState.melds.map((meld) => {
+                ) : cardState.melds.map((meld, meldIndex) => {
                   const owner = game.players.find((player) => player.id === meld.ownerId);
+                  const segments = pointOwnerSegments(meld);
                   return (
                     <button type="button" key={meld.id} onClick={() => setSelectedMeldId(selectedMeldId === meld.id ? null : meld.id)} className={`meld-card rendered-meld-card ${selectedMeldId === meld.id ? "selected" : ""}`}>
                       <div className="meld-heading">
-                        <span>{owner?.name || "Player"}</span>
-                        <strong>{meld.kind}</strong>
+                        <span>Meld {meldIndex + 1}</span>
+                        <strong>{owner?.name || "Player"} · {meld.kind}</strong>
                       </div>
-                      <div className="meld-svg-row" aria-label={meld.cards.map(cardLabel).join(" ")}>
-                        {meld.cards.map((card) => {
-                          const pointOwner = game.players.find((player) => player.id === (card.pointOwnerId || meld.ownerId));
+                      <div className="meld-segments" aria-label={meld.cards.map(cardLabel).join(" ")}>
+                        {segments.map((segment, segmentIndex) => {
+                          const pointOwner = game.players.find((player) => player.id === segment.ownerId) || owner;
+                          const label = segment.ownerId === meld.ownerId ? `Made by ${pointOwner?.name || "Player"}` : `Laid off by ${pointOwner?.name || "Player"}`;
                           return (
-                            <span key={card.id} className="meld-svg-card" title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}><SvgCardFace card={card} /><small>{pointOwner?.name || owner?.name || "Player"}</small></span>
+                            <div key={`${meld.id}-${segment.ownerId}-${segmentIndex}`} className={`meld-owner-segment ${segment.ownerId === meld.ownerId ? "meld-base-segment" : "meld-layoff-segment"}`}>
+                              <div className="meld-owner-label">{label}</div>
+                              <div className="meld-svg-row">
+                                {segment.cards.map((card) => (
+                                  <span key={card.id} className="meld-svg-card" title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}>
+                                    <SvgCardFace card={card} />
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
                           );
                         })}
                       </div>
