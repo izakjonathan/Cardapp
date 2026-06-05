@@ -309,7 +309,7 @@ input{min-width:0;border:0;outline:none}
   display:grid;
   grid-template-columns:minmax(0,1fr);
   gap:10px;
-  align-items:start;
+  align-items:flex-start;
 }
 .game-library-item.active{box-shadow:inset 0 0 0 1px var(--passport-blue)}
 .game-library-item.archived{opacity:.62}
@@ -556,7 +556,7 @@ input{min-width:0;border:0;outline:none}
   color:var(--passport-blue);
   display:grid;
   grid-template-rows:auto 1fr;
-  align-items:start;
+  align-items:flex-start;
   justify-items:start;
   padding:8px;
   scroll-snap-align:start;
@@ -676,7 +676,7 @@ input{min-width:0;border:0;outline:none}
 .playable-topline{
   grid-template-columns:minmax(0,1fr) minmax(112px,auto);
   gap:12px;
-  align-items:start;
+  align-items:flex-start;
 }
 .playable-topline .label{opacity:.82}
 .playable-topline strong{font-size:clamp(24px,7vw,34px);letter-spacing:.01em;margin-top:8px;white-space:normal}
@@ -1348,7 +1348,7 @@ input{min-width:0;border:0;outline:none}
   display:grid;
   grid-auto-flow:row;
   width:max-content;
-  align-items:start;
+  align-items:flex-start;
   align-content:start;
   overflow:visible;
   gap:6px;
@@ -1360,7 +1360,7 @@ input{min-width:0;border:0;outline:none}
 .app.card-table-active .card-controls-grid{
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:5px;
-  align-items:start;
+  align-items:flex-start;
 }
 .app.card-table-active .card-action{
   min-height:28px;
@@ -1841,7 +1841,7 @@ input{min-width:0;border:0;outline:none}
 }
 
 .app.card-table-active .rendered-meld-card{
-  align-items:start;
+  align-items:flex-start;
   justify-items:stretch;
   gap:6px;
   text-align:left;
@@ -1885,4 +1885,207 @@ input{min-width:0;border:0;outline:none}
 @media (max-height:760px){
   .app.card-table-active .meld-svg-card{flex-basis:30px;width:30px;height:42px}
   .app.card-table-active .meld-zone{max-height:94px;min-height:52px}
+}
+
+/* V165 meld clarity, lay-off ownership, stable table top */
+.app.card-table-active .game-topbar{
+  grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+  gap:8px;
+  margin-bottom:0;
+}
+.app.card-table-active .topbar-chip{
+  min-height:46px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:8px;
+  padding:0 14px;
+  border-radius:22px;
+  text-align:left;
+}
+.app.card-table-active .topbar-chip span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  opacity:.75;
+}
+.app.card-table-active .topbar-chip strong{
+  font-size:18px;
+  line-height:1;
+  font-weight:900;
+}
+.app.card-table-active .topbar-chip .sync-dot,
+.app.card-table-active .topbar-chip i.sync-dot{
+  grid-column:2;
+  grid-row:1 / span 2;
+  align-self:center;
+}
+.app.card-table-active .game-status-panel{
+  min-height:56px;
+  padding:8px;
+  border:1.5px solid rgba(36,76,221,.18);
+  border-radius:22px;
+  background:rgba(239,233,220,.52);
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+}
+.app.card-table-active .turn-chip{
+  display:grid;
+  gap:3px;
+  min-width:0;
+}
+.app.card-table-active .turn-chip span{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-weight:900;
+  opacity:.72;
+}
+.app.card-table-active .turn-chip strong{
+  font-size:24px;
+  line-height:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.app.card-table-active .game-status-panel .primary-card-action{
+  min-height:42px;
+  max-height:none;
+  min-width:98px;
+  font-size:16px;
+  border-radius:999px;
+}
+.app.card-table-active .seat-selector{
+  padding:4px 6px;
+  background:rgba(239,233,220,.34);
+  border:1px solid rgba(36,76,221,.12);
+  border-radius:20px;
+}
+.app.card-table-active .card-table-row{
+  margin-top:0;
+}
+.app.card-table-active .meld-zone{
+  min-height:152px;
+  max-height:188px;
+  padding:9px;
+  display:grid;
+  align-content:start;
+  gap:10px;
+  overflow:auto;
+  border-radius:24px;
+  background:rgba(239,233,220,.48);
+}
+.app.card-table-active .rendered-meld-card{
+  min-height:118px;
+  border-radius:22px;
+  padding:10px 12px;
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  gap:8px;
+  background:rgba(255,252,247,.62);
+  border:1.5px solid rgba(36,76,221,.20);
+}
+.app.card-table-active .rendered-meld-card.selected{
+  box-shadow:inset 0 0 0 2px var(--passport-blue), 0 8px 16px rgba(36,76,221,.09);
+}
+.app.card-table-active .meld-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-width:0;
+}
+.app.card-table-active .meld-heading span,
+.app.card-table-active .meld-heading strong{
+  display:block;
+  min-width:0;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  line-height:1;
+}
+.app.card-table-active .meld-heading span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:900;
+}
+.app.card-table-active .meld-heading strong{
+  flex:0 0 auto;
+  font-size:10px;
+  border:1px solid rgba(36,76,221,.2);
+  border-radius:999px;
+  padding:5px 8px;
+  background:rgba(239,233,220,.55);
+}
+.app.card-table-active .meld-svg-row{
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:2px 2px 6px;
+  -webkit-overflow-scrolling:touch;
+  align-items:flex-start;
+}
+.app.card-table-active .meld-svg-card{
+  flex:0 0 44px;
+  width:44px;
+  min-width:44px;
+  height:74px;
+  display:grid;
+  grid-template-rows:60px 12px;
+  gap:2px;
+  justify-items:center;
+  align-items:flex-start;
+}
+.app.card-table-active .meld-svg-card .card-svg{
+  width:44px;
+  height:60px;
+  filter:drop-shadow(0 2px 4px rgba(36,76,221,.12));
+}
+.app.card-table-active .meld-svg-card small{
+  max-width:44px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:7px;
+  line-height:1;
+  color:rgba(36,76,221,.72);
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+.app.card-table-active .meld-svg-card .card-svg-rank{font-size:22px}
+.app.card-table-active .meld-svg-card .card-svg-center{transform-origin:center}
+.app.card-table-active .meld-svg-card .card-svg-joker{font-size:10px}
+.app.card-table-active .meld-svg-card .card-svg-joker-rank{font-size:11px}
+.app.card-table-active .meld-svg-card .card-svg-assigned{display:none}
+.app.card-table-active .mini-help{
+  min-height:100px;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:15px;
+  line-height:1.25;
+}
+@media (max-height:760px){
+  .app.card-table-active .topbar-chip{min-height:40px}
+  .app.card-table-active .turn-chip strong{font-size:20px}
+  .app.card-table-active .game-status-panel{min-height:48px;padding:6px}
+  .app.card-table-active .game-status-panel .primary-card-action{min-height:36px;font-size:14px;min-width:88px}
+  .app.card-table-active .meld-zone{min-height:126px;max-height:150px;padding:7px;gap:8px}
+  .app.card-table-active .rendered-meld-card{min-height:96px;padding:8px 10px;gap:6px}
+  .app.card-table-active .meld-svg-card{flex-basis:38px;width:38px;min-width:38px;height:64px;grid-template-rows:52px 10px}
+  .app.card-table-active .meld-svg-card .card-svg{width:38px;height:52px}
+  .app.card-table-active .meld-svg-card small{max-width:38px;font-size:6px}
+  .app.card-table-active .mini-help{min-height:78px;font-size:13px}
+}
+@media (max-width:390px){
+  .app.card-table-active .topbar-chip{padding:0 10px}
+  .app.card-table-active .topbar-chip strong{font-size:16px}
+  .app.card-table-active .meld-zone{min-height:132px;max-height:158px}
 }

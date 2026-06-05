@@ -13,7 +13,7 @@ type SyncStatus = "loading" | "synced" | "syncing" | "offline";
 type DevicePresence = { clientId: string; name: string; joinedAt: string; gameName: string };
 type Suit = "♠" | "♥" | "♦" | "♣";
 type Rank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "J" | "Q" | "K";
-type Card = { id: string; suit: Suit | "🃏"; rank: Rank | "JOKER"; value: number; joker?: boolean; asSuit?: Suit; asRank?: Rank };
+type Card = { id: string; suit: Suit | "🃏"; rank: Rank | "JOKER"; value: number; joker?: boolean; asSuit?: Suit; asRank?: Rank; pointOwnerId?: string };
 type Meld = { id: string; ownerId: string; cards: Card[]; kind: "set" | "run" };
 type CardGameState = {
   roundId: string;
@@ -254,6 +254,7 @@ function effectiveSuit(card: Card) { return card.asSuit || (card.suit === "🃏"
 function isJoker(card: Card) { return Boolean(card.joker || card.rank === "JOKER"); }
 function asCard(joker: Card, rank: Rank, suit: Suit): Card { return { ...joker, asRank: rank, asSuit: suit }; }
 function clearJoker(card: Card): Card { return isJoker(card) ? { id: card.id, suit: "🃏", rank: "JOKER", value: 15, joker: true } : card; }
+function withPointOwner(card: Card, playerId: string): Card { return { ...card, pointOwnerId: playerId }; }
 function sortCards(cards: Card[]) {
   return [...cards].sort((a, b) => {
     const jokerDiff = Number(isJoker(a)) - Number(isJoker(b));
@@ -420,7 +421,9 @@ function findExchangeInMeld(handCard: Card, meld: Meld) {
 }
 
 function meldPoints(melds: Meld[], playerId: string) {
-  return melds.filter((meld) => meld.ownerId === playerId).flatMap((meld) => meld.cards).reduce((sum, card) => sum + card.value, 0);
+  return melds.flatMap((meld) => meld.cards.map((card) => ({ card, fallbackOwnerId: meld.ownerId }))).reduce((sum, item) => {
+    return (item.card.pointOwnerId || item.fallbackOwnerId) === playerId ? sum + item.card.value : sum;
+  }, 0);
 }
 
 function handPoints(cards: Card[]) {
@@ -1258,7 +1261,7 @@ export default function RummyApp() {
       if (!state || state.phase !== "play") return previous;
       const hand = state.hands[state.turnPlayerId] || [];
       if (!sameCardSet(selectedHandCards, hand.filter((card) => selectedCards.includes(card.id)))) return previous;
-      const meld: Meld = { id: crypto.randomUUID(), ownerId: state.turnPlayerId, cards: assignedMeld.cards, kind: assignedMeld.kind };
+      const meld: Meld = { id: crypto.randomUUID(), ownerId: state.turnPlayerId, cards: assignedMeld.cards.map((meldCard) => withPointOwner(meldCard, state.turnPlayerId)), kind: assignedMeld.kind };
       return { ...previous, cardGame: { ...state, hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, selectedCards) }, melds: [...state.melds, meld], meldedAfterWholeDiscard: state.meldedAfterWholeDiscard || state.drewWholeDiscard || false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} made a ${assignedMeld.kind}. Discard to end the turn.` } };
     });
     setSelectedCards([]);
@@ -1282,7 +1285,7 @@ export default function RummyApp() {
         cardGame: {
           ...state,
           hands: { ...state.hands, [state.turnPlayerId]: removeCards(state.hands[state.turnPlayerId] || [], [card.id]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: orderMeldCards(meld, [...meld.cards, layOffCard]) } : meld),
+          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: orderMeldCards(meld, [...meld.cards, withPointOwner(layOffCard, state.turnPlayerId)]) } : meld),
           message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(layOffCard)}.`
         }
       };
@@ -1311,7 +1314,7 @@ export default function RummyApp() {
         cardGame: {
           ...state,
           hands: { ...state.hands, [state.turnPlayerId]: sortCards([...removeCards(state.hands[state.turnPlayerId] || [], [handCard.id]), cleanJoker]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: sortCards(meld.cards.map((card) => card.id === joker.id ? handCard : card)) } : meld),
+          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: meld.cards.map((card) => card.id === joker.id ? withPointOwner(handCard, state.turnPlayerId) : card) } : meld),
           message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} exchanged ${cardLabel(handCard)} for a joker.`
         }
       };
@@ -1711,18 +1714,18 @@ export default function RummyApp() {
     <motion.main className={`app players-${game.players.length} ${cardState ? "card-table-active" : ""}`} initial={{ opacity: 0.98 }} animate={{ opacity: 1 }} transition={{ duration: 0.18 }}>
       <div className="bg" aria-hidden="true" />
       <div className="ui">
-        <header className="header">
-          <button type="button" onClick={toggleStarter} className="glass-soft pill">Starter: {game.players.find((player) => player.id === game.starterId)?.name || "You"}</button>
-          <button type="button" onClick={() => setSettingsOpen(true)} className="glass-soft pill">{game.gameId ? `${game.gameName} · ${game.targetScore}` : "No game"}<span className={`sync-dot sync-${syncStatus}`} /></button>
+        <header className="header game-topbar">
+          <button type="button" onClick={toggleStarter} className="glass-soft pill topbar-chip"><span>Starter</span><strong>{game.players.find((player) => player.id === game.starterId)?.name || "You"}</strong></button>
+          <button type="button" onClick={() => setSettingsOpen(true)} className="glass-soft pill topbar-chip"><span>{game.gameId ? game.gameName : "No game"}</span><strong>{game.targetScore}</strong><i className={`sync-dot sync-${syncStatus}`} /></button>
         </header>
 
         <Scoreboard game={game} scoreTotals={scoreTotals} compact={Boolean(cardState)} activePlayerId={cardState?.turnPlayerId || null} />
 
         <section className="glass playable-cardgame">
-          <div className="playable-topline">
-            <div>
-              <div className="label">Playable Rummy 500</div>
-              <strong>{cardState ? `${currentPlayer?.name || "Player"}'s turn` : "Cards not dealt"}</strong>
+          <div className="playable-topline game-status-panel">
+            <div className="turn-chip">
+              <span>Turn</span>
+              <strong>{cardState ? currentPlayer?.name || "Player" : "Cards not dealt"}</strong>
             </div>
             <button type="button" onClick={startPlayableRound} className="glass-soft card-action primary-card-action">
               {cardState?.phase === "roundOver" ? "Next deal" : cardState ? "Redeal" : "Deal cards"}
@@ -1796,11 +1799,17 @@ export default function RummyApp() {
                   const owner = game.players.find((player) => player.id === meld.ownerId);
                   return (
                     <button type="button" key={meld.id} onClick={() => setSelectedMeldId(selectedMeldId === meld.id ? null : meld.id)} className={`meld-card rendered-meld-card ${selectedMeldId === meld.id ? "selected" : ""}`}>
-                      <span>{owner?.name || "Player"} · {meld.kind}</span>
+                      <div className="meld-heading">
+                        <span>{owner?.name || "Player"}</span>
+                        <strong>{meld.kind}</strong>
+                      </div>
                       <div className="meld-svg-row" aria-label={meld.cards.map(cardLabel).join(" ")}>
-                        {meld.cards.map((card) => (
-                          <span key={card.id} className="meld-svg-card"><SvgCardFace card={card} /></span>
-                        ))}
+                        {meld.cards.map((card) => {
+                          const pointOwner = game.players.find((player) => player.id === (card.pointOwnerId || meld.ownerId));
+                          return (
+                            <span key={card.id} className="meld-svg-card" title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}><SvgCardFace card={card} /><small>{pointOwner?.name || owner?.name || "Player"}</small></span>
+                          );
+                        })}
                       </div>
                     </button>
                   );
