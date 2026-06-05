@@ -1,0 +1,16 @@
+V164 — FLAT SVG CARDS + RENDERED MELD CARDS
+
+Changes made
+- Removed the gradient from the SVG playing-card face.
+- The SVG card face is now a flat clean white/cream surface.
+- Flattened the active game-table card background to remove the visible gradient.
+- Removed the draw/play phase strip from the active game UI.
+- Removed the “Your hand / Current hand + player name” hand heading.
+- Removed the hand card-count label from above the hand area.
+- Melds now render the same SVG card faces used in the hand instead of plain text card labels.
+- Added compact rendered-card styling for meld rows, including horizontal scrolling for long melds.
+
+Validation
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed completely

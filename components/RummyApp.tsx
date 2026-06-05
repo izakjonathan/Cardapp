@@ -528,15 +528,8 @@ function SvgCardFace({ card }: { card: Card }) {
 
   return (
     <svg className={`card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
-      <defs>
-        <linearGradient id={`cardSheen-${card.id}`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ffffff" />
-          <stop offset="58%" stopColor="#fffaf1" />
-          <stop offset="100%" stopColor="#f2e7d5" />
-        </linearGradient>
-      </defs>
       <rect className="card-svg-shadow" x="5" y="6" width="90" height="128" rx="13" />
-      <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" fill={`url(#cardSheen-${card.id})`} />
+      <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" />
       <rect className="card-svg-inner" x="9" y="9" width="82" height="120" rx="10" />
       {jokerCard ? (
         <>
@@ -1748,11 +1741,6 @@ export default function RummyApp() {
             <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added only when a player closes by discarding their last card.</div>
           ) : (
             <>
-              <div className="turn-status-strip">
-                <div className={`phase-pill phase-${cardState.phase}`}>{cardState.phase === "draw" ? "Draw phase" : cardState.phase === "play" ? "Play phase" : "Round over"}</div>
-                <div className="turn-status-copy">{isWatchingOtherTurn ? `Waiting for ${currentPlayer?.name || "Player"}` : cardState.phase === "draw" ? "Draw one card" : cardState.phase === "play" ? "Meld, lay off, exchange or discard" : "Start the next deal"}</div>
-              </div>
-
               <div className="card-table-row">
                 <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile">
                   <span>Stock</span>
@@ -1769,12 +1757,6 @@ export default function RummyApp() {
               </div>
 
               <div className="card-message">{cardState.message}</div>
-
-              <div className="hand-owner-line">
-                <span>{claimedPlayer ? "Your hand" : "Current hand"}</span>
-                <strong>{activeHandPlayer?.name || "Player"}</strong>
-                <em>{activeHand.length} cards</em>
-              </div>
 
               <div className="hand-scroll-wrap">
               <div
@@ -1813,9 +1795,13 @@ export default function RummyApp() {
                 ) : cardState.melds.map((meld) => {
                   const owner = game.players.find((player) => player.id === meld.ownerId);
                   return (
-                    <button type="button" key={meld.id} onClick={() => setSelectedMeldId(selectedMeldId === meld.id ? null : meld.id)} className={`meld-card ${selectedMeldId === meld.id ? "selected" : ""}`}>
+                    <button type="button" key={meld.id} onClick={() => setSelectedMeldId(selectedMeldId === meld.id ? null : meld.id)} className={`meld-card rendered-meld-card ${selectedMeldId === meld.id ? "selected" : ""}`}>
                       <span>{owner?.name || "Player"} · {meld.kind}</span>
-                      <strong>{meld.cards.map(cardLabel).join(" ")}</strong>
+                      <div className="meld-svg-row" aria-label={meld.cards.map(cardLabel).join(" ")}>
+                        {meld.cards.map((card) => (
+                          <span key={card.id} className="meld-svg-card"><SvgCardFace card={card} /></span>
+                        ))}
+                      </div>
                     </button>
                   );
                 })}

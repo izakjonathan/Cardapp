@@ -1817,3 +1817,72 @@ input{min-width:0;border:0;outline:none}
   .card-svg-joker-rank{font-size:11px}
   .card-svg-joker{font-size:11px}
 }
+
+/* V164 flat cards + cleaner active hand/meld rendering */
+.app.card-table-active .playable-cardgame{
+  background:#efe9dc;
+}
+.card-svg-face{
+  fill:#fffdfa;
+}
+.card-svg-shadow{
+  fill:rgba(30,28,22,.08);
+}
+.app.card-table-active .card-table-row,
+.app.card-table-active .hand-scroll-wrap,
+.app.card-table-active .meld-zone{
+  background:rgba(239,233,220,.36);
+}
+
+/* The phase and hand-heading elements are removed in JSX; keep defensive hiding for old cached markup. */
+.app.card-table-active .turn-status-strip,
+.app.card-table-active .hand-owner-line{
+  display:none !important;
+}
+
+.app.card-table-active .rendered-meld-card{
+  align-items:start;
+  justify-items:stretch;
+  gap:6px;
+  text-align:left;
+  padding:8px 10px;
+}
+.app.card-table-active .rendered-meld-card span{
+  display:block;
+}
+.app.card-table-active .meld-svg-row{
+  display:flex;
+  gap:6px;
+  overflow-x:auto;
+  padding:2px 1px 5px;
+  -webkit-overflow-scrolling:touch;
+}
+.app.card-table-active .meld-svg-card{
+  flex:0 0 34px;
+  width:34px;
+  height:48px;
+  display:block;
+}
+.app.card-table-active .meld-svg-card .card-svg{
+  filter:drop-shadow(0 2px 3px rgba(36,76,221,.08));
+}
+.app.card-table-active .meld-svg-card .card-svg-rank{
+  font-size:22px;
+}
+.app.card-table-active .meld-svg-card .card-svg-joker-rank{
+  font-size:12px;
+}
+.app.card-table-active .meld-svg-card .card-svg-joker{
+  font-size:12px;
+}
+.app.card-table-active .meld-svg-card .card-svg-assigned{
+  display:none;
+}
+.app.card-table-active .meld-zone{
+  max-height:112px;
+  min-height:60px;
+}
+@media (max-height:760px){
+  .app.card-table-active .meld-svg-card{flex-basis:30px;width:30px;height:42px}
+  .app.card-table-active .meld-zone{max-height:94px;min-height:52px}
+}
