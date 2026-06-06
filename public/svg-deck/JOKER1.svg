@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 140" role="img">
+  <rect x="5" y="6" width="90" height="128" rx="13" fill="rgba(17,17,17,.12)" />
+  <rect x="4" y="4" width="92" height="130" rx="13" fill="#fffdf8" stroke="#1e2f58" stroke-width="2.3" />
+  <rect x="7" y="7" width="86" height="124" rx="11" fill="none" stroke="#d5b56b" stroke-width="1.15" />
+  <rect x="11" y="11" width="78" height="116" rx="9" fill="none" stroke="rgba(30,47,88,.18)" stroke-width="1.1" />
+  
+    <g><text x="20" y="22" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="#181818">JKR</text><g fill="#181818"><g transform="translate(20 29) scale(0.15) translate(-50 -50)"><path d="M50 13 L60 39 L88 39 L65 56 L74 84 L50 67 L26 84 L35 56 L12 39 L40 39 Z" /></g></g></g>
+    <g transform="rotate(180 80 111)"><text x="80" y="111" text-anchor="middle" dominant-baseline="middle" font-size="11" font-weight="900" fill="#181818">JKR</text><g fill="#181818"><g transform="translate(80 118) scale(0.15) translate(-50 -50)"><path d="M50 13 L60 39 L88 39 L65 56 L74 84 L50 67 L26 84 L35 56 L12 39 L40 39 Z" /></g></g></g>
+    <g>
+      <path d="M26 82 C28 60 34 49 44 41 C44 51 39 60 34 69 C42 67 47 64 52 58 C53 68 50 75 44 82 Z" fill="#cc2a2a" />
+      <path d="M74 82 C72 60 66 49 56 41 C56 51 61 60 66 69 C58 67 53 64 48 58 C47 68 50 75 56 82 Z" fill="#181818" />
+      <path d="M37 82 C37 69 43 60 50 60 C57 60 63 69 63 82 C63 95 57 104 50 104 C43 104 37 95 37 82 Z" fill="#fff7ea" stroke="#1f2f56" stroke-width="1.1" />
+      <circle cx="34" cy="69" r="3.2" fill="#cc2a2a" />
+      <circle cx="66" cy="69" r="3.2" fill="#181818" />
+      <circle cx="50" cy="44" r="4" fill="#d7b15e" />
+      <path d="M38 93 C43 88 47 86 50 86 C53 86 57 88 62 93 C56 97 53 100 50 104 C47 100 44 97 38 93 Z" fill="#d7b15e" stroke="#1f2f56" stroke-width=".9" />
+      <circle cx="45" cy="81" r="1.6" fill="#181818" />
+      <circle cx="55" cy="81" r="1.6" fill="#181818" />
+      <path d="M44 88 C47 91 53 91 56 88" fill="none" stroke="#181818" stroke-width="1.2" stroke-linecap="round" />
+    </g>
+    <text x="50" y="115" text-anchor="middle" font-size="9" font-weight="900" letter-spacing=".2em" fill="#1f2f56">JOKER</text>
+    
+</svg>

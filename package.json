@@ -1,13 +1,14 @@
 {
   "name": "rummy500-clean",
-  "version": "170.0.0",
+  "version": "171.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "NEXT_PRIVATE_BUILD_WORKER=1 next build",
     "vercel-build": "NEXT_PRIVATE_BUILD_WORKER=1 next build",
     "start": "next start",
-    "rules-qa": "node scripts/rules-qa.mjs"
+    "rules-qa": "node scripts/rules-qa.mjs",
+    "export-svg-deck": "node scripts/export-svg-deck.mjs"
   },
   "dependencies": {
     "next": "14.2.35",

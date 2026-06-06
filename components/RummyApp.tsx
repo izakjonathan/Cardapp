@@ -500,6 +500,8 @@ function cardFaceCenter(card: Card) {
 
 type CardFaceSuit = Suit | "★";
 
+type PipPoint = { x: number; y: number; scale?: number };
+
 function isRedSuitValue(suit?: CardFaceSuit | null) {
   return suit === "♥" || suit === "♦";
 }
@@ -507,10 +509,12 @@ function svgToneClass(card: Card) {
   if (isJoker(card)) return "card-svg-joker-card";
   return isRedSuitValue(card.suit as Suit) ? "card-svg-red" : "card-svg-black";
 }
+function suitTone(suit?: CardFaceSuit | null) {
+  return isRedSuitValue(suit) ? "#cc2a2a" : "#181818";
+}
 
-function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: CardFaceSuit; x?: number; y?: number; scale?: number; soft?: boolean }) {
+function SuitMark({ suit, x = 50, y = 58, scale = 1, className = "svg-suit" }: { suit: CardFaceSuit; x?: number; y?: number; scale?: number; className?: string }) {
   const transform = `translate(${x} ${y}) scale(${scale}) translate(-50 -50)`;
-  const className = soft ? "svg-suit svg-suit-soft" : "svg-suit";
 
   if (suit === "♥") {
     return (
@@ -554,41 +558,109 @@ function SuitMark({ suit, x = 50, y = 58, scale = 1, soft = false }: { suit: Car
   );
 }
 
-function JokerMark() {
+const PIP_LAYOUTS: Record<string, PipPoint[]> = {
+  A: [{ x: 50, y: 69, scale: 0.54 }],
+  "2": [{ x: 50, y: 40, scale: 0.36 }, { x: 50, y: 98, scale: 0.36 }],
+  "3": [{ x: 50, y: 34, scale: 0.34 }, { x: 50, y: 69, scale: 0.36 }, { x: 50, y: 104, scale: 0.34 }],
+  "4": [{ x: 31, y: 40, scale: 0.32 }, { x: 69, y: 40, scale: 0.32 }, { x: 31, y: 98, scale: 0.32 }, { x: 69, y: 98, scale: 0.32 }],
+  "5": [{ x: 31, y: 40, scale: 0.31 }, { x: 69, y: 40, scale: 0.31 }, { x: 50, y: 69, scale: 0.34 }, { x: 31, y: 98, scale: 0.31 }, { x: 69, y: 98, scale: 0.31 }],
+  "6": [{ x: 31, y: 34, scale: 0.3 }, { x: 69, y: 34, scale: 0.3 }, { x: 31, y: 69, scale: 0.3 }, { x: 69, y: 69, scale: 0.3 }, { x: 31, y: 104, scale: 0.3 }, { x: 69, y: 104, scale: 0.3 }],
+  "7": [{ x: 50, y: 24, scale: 0.27 }, { x: 31, y: 38, scale: 0.28 }, { x: 69, y: 38, scale: 0.28 }, { x: 50, y: 69, scale: 0.3 }, { x: 31, y: 98, scale: 0.28 }, { x: 69, y: 98, scale: 0.28 }, { x: 50, y: 114, scale: 0.27 }],
+  "8": [{ x: 31, y: 24, scale: 0.27 }, { x: 69, y: 24, scale: 0.27 }, { x: 31, y: 46, scale: 0.27 }, { x: 69, y: 46, scale: 0.27 }, { x: 31, y: 92, scale: 0.27 }, { x: 69, y: 92, scale: 0.27 }, { x: 31, y: 114, scale: 0.27 }, { x: 69, y: 114, scale: 0.27 }],
+  "9": [{ x: 50, y: 22, scale: 0.24 }, { x: 31, y: 36, scale: 0.26 }, { x: 69, y: 36, scale: 0.26 }, { x: 31, y: 58, scale: 0.26 }, { x: 69, y: 58, scale: 0.26 }, { x: 50, y: 70, scale: 0.28 }, { x: 31, y: 102, scale: 0.26 }, { x: 69, y: 102, scale: 0.26 }, { x: 50, y: 116, scale: 0.24 }],
+  "10": [{ x: 31, y: 22, scale: 0.23 }, { x: 69, y: 22, scale: 0.23 }, { x: 31, y: 40, scale: 0.23 }, { x: 69, y: 40, scale: 0.23 }, { x: 31, y: 58, scale: 0.23 }, { x: 69, y: 58, scale: 0.23 }, { x: 31, y: 82, scale: 0.23 }, { x: 69, y: 82, scale: 0.23 }, { x: 31, y: 100, scale: 0.23 }, { x: 69, y: 100, scale: 0.23 }],
+};
+
+function CornerIndex({ rank, suit, mirrored = false }: { rank: string; suit: CardFaceSuit; mirrored?: boolean }) {
+  const tone = suitTone(suit);
+  const transform = mirrored ? "rotate(180 80 111)" : undefined;
+  const x = mirrored ? 80 : 20;
+  const y = mirrored ? 111 : 22;
   return (
-    <g className="svg-joker-mark" aria-hidden="true">
-      <path className="joker-red-fill" d="M50 22 L62 45 L88 49 L69 67 L74 93 L50 80 L26 93 L31 67 L12 49 L38 45 Z" />
-      <path className="joker-black-fill" d="M50 31 L58 48 L77 51 L63 64 L67 82 L50 73 L33 82 L37 64 L23 51 L42 48 Z" />
-      <circle className="joker-red-fill" cx="50" cy="22" r="5" />
+    <g transform={transform}>
+      <text className="card-svg-corner-rank" x={x} y={y} style={{ fill: tone }}>{rank}</text>
+      <g transform={`translate(${mirrored ? 80 : 20} ${mirrored ? 118 : 29}) scale(0.15) translate(-50 -50)`} style={{ fill: tone }}>
+        <SuitMark suit={suit} />
+      </g>
     </g>
   );
 }
 
+function NumberPips({ rank, suit }: { rank: string; suit: CardFaceSuit }) {
+  const points = PIP_LAYOUTS[rank] || PIP_LAYOUTS.A;
+  return (
+    <g className="card-svg-center">
+      {points.map((point, index) => (
+        <g key={`${rank}-${index}`} style={{ fill: suitTone(suit) }}>
+          <SuitMark suit={suit} x={point.x} y={point.y} scale={point.scale || 0.3} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function RoyalCenter({ rank, suit }: { rank: string; suit: CardFaceSuit }) {
+  const tone = suitTone(suit);
+  return (
+    <g className="card-svg-center">
+      <rect className="card-svg-royal-panel" x="24" y="34" width="52" height="72" rx="13" />
+      <rect className="card-svg-royal-inner" x="28" y="38" width="44" height="64" rx="10" />
+      <SuitMark suit={suit} x={50} y={51} scale={0.18} className="svg-suit" />
+      <text className="card-svg-royal-rank" x="50" y="78" style={{ fill: tone }}>{rank}</text>
+      <text className="card-svg-royal-word" x="50" y="95">{rank === "J" ? "JACK" : rank === "Q" ? "QUEEN" : "KING"}</text>
+      <path className="card-svg-royal-line" d="M34 88 H66" />
+      <SuitMark suit={suit} x={38} y={95} scale={0.12} className="svg-suit" />
+      <SuitMark suit={suit} x={62} y={95} scale={0.12} className="svg-suit" />
+    </g>
+  );
+}
+
+function JokerMark() {
+  return (
+    <g className="card-svg-center svg-joker-mark" aria-hidden="true">
+      <path className="joker-cap-red" d="M26 82 C28 60 34 49 44 41 C44 51 39 60 34 69 C42 67 47 64 52 58 C53 68 50 75 44 82 Z" />
+      <path className="joker-cap-black" d="M74 82 C72 60 66 49 56 41 C56 51 61 60 66 69 C58 67 53 64 48 58 C47 68 50 75 56 82 Z" />
+      <path className="joker-face" d="M37 82 C37 69 43 60 50 60 C57 60 63 69 63 82 C63 95 57 104 50 104 C43 104 37 95 37 82 Z" />
+      <circle className="joker-cap-red" cx="34" cy="69" r="3.2" />
+      <circle className="joker-cap-black" cx="66" cy="69" r="3.2" />
+      <circle className="joker-cap-gold" cx="50" cy="44" r="4" />
+      <path className="joker-collar" d="M38 93 C43 88 47 86 50 86 C53 86 57 88 62 93 C56 97 53 100 50 104 C47 100 44 97 38 93 Z" />
+      <circle className="joker-eye" cx="45" cy="81" r="1.6" />
+      <circle className="joker-eye" cx="55" cy="81" r="1.6" />
+      <path className="joker-smile" d="M44 88 C47 91 53 91 56 88" />
+    </g>
+  );
+}
 
 function SvgCardFace({ card }: { card: Card }) {
   const jokerCard = isJoker(card);
   const faceSuit = cardFaceSuit(card) as CardFaceSuit;
   const faceRank = cardFaceRank(card);
   const assigned = jokerCard && card.asRank && card.asSuit;
+  const tone = suitTone(faceSuit);
+  const showRoyal = ["J", "Q", "K"].includes(faceRank);
+  const cornerSuit = jokerCard && !card.asSuit ? "★" as CardFaceSuit : faceSuit;
 
   return (
-    <svg className={`card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
+    <svg className={`card-svg detailed-card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
       <rect className="card-svg-shadow" x="5" y="6" width="90" height="128" rx="13" />
       <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" />
-      <rect className="card-svg-inner" x="9" y="9" width="82" height="120" rx="10" />
+      <rect className="card-svg-edge" x="7" y="7" width="86" height="124" rx="11" />
+      <rect className="card-svg-inner" x="11" y="11" width="78" height="116" rx="9" />
+      <CornerIndex rank={jokerCard ? "JKR" : faceRank} suit={cornerSuit} />
+      <CornerIndex rank={jokerCard ? "JKR" : faceRank} suit={cornerSuit} mirrored />
       {jokerCard ? (
         <>
-          <text className="card-svg-rank card-svg-joker-rank" x="20" y="27">JKR</text>
           <JokerMark />
-          <text className="card-svg-joker" x="50" y="105">JOKER</text>
-          {assigned ? <text className={`card-svg-assigned ${isRedSuitValue(card.asSuit) ? "assigned-red" : "assigned-black"}`} x="50" y="120">{card.asRank}{card.asSuit}</text> : null}
+          <text className="card-svg-joker" x="50" y="115">JOKER</text>
+          {assigned ? <text className={`card-svg-assigned ${isRedSuitValue(card.asSuit) ? "assigned-red" : "assigned-black"}`} x="50" y="124">{card.asRank}{card.asSuit}</text> : null}
         </>
+      ) : showRoyal ? (
+        <RoyalCenter rank={faceRank} suit={faceSuit} />
       ) : (
-        <>
-          <text className="card-svg-rank" x="17" y="27">{faceRank}</text>
-          <SuitMark suit={faceSuit} x={50} y={75} scale={0.58} />
-        </>
+        <NumberPips rank={faceRank} suit={faceSuit} />
       )}
+      {!jokerCard && faceRank === "A" ? <path className="card-svg-ace-ring" d="M29 69 C29 54 39 43 50 43 C61 43 71 54 71 69 C71 84 61 95 50 95 C39 95 29 84 29 69 Z" style={{ stroke: `${tone}22` }} /> : null}
     </svg>
   );
 }

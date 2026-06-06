@@ -2637,3 +2637,103 @@ input{min-width:0;border:0;outline:none}
   .app.card-table-active .meld-owned-card .meld-svg-card,
   .app.card-table-active .meld-owned-card .card-svg{width:38px;height:53px}
 }
+
+/* V171 detailed colored SVG deck */
+.detailed-card-svg{
+  overflow:visible;
+}
+.detailed-card-svg .card-svg-shadow{
+  fill:rgba(17,17,17,.12);
+}
+.detailed-card-svg .card-svg-face{
+  fill:#fffdf8;
+  stroke:#1e2f58;
+  stroke-width:2.3;
+}
+.detailed-card-svg .card-svg-edge{
+  fill:none;
+  stroke:#d5b56b;
+  stroke-width:1.15;
+}
+.detailed-card-svg .card-svg-inner{
+  fill:none;
+  stroke:rgba(30,47,88,.18);
+  stroke-width:1.1;
+}
+.detailed-card-svg .card-svg-corner-rank{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:-.02em;
+  dominant-baseline:middle;
+  text-anchor:middle;
+}
+.detailed-card-svg .card-svg-joker{
+  fill:#1f2f56;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.2em;
+  text-anchor:middle;
+}
+.detailed-card-svg .card-svg-assigned{
+  font-size:8px;
+  font-weight:900;
+  text-anchor:middle;
+}
+.detailed-card-svg .card-svg-royal-panel{
+  fill:#f7f1e4;
+  stroke:#d8bc78;
+  stroke-width:1;
+}
+.detailed-card-svg .card-svg-royal-inner{
+  fill:rgba(255,255,255,.55);
+  stroke:rgba(30,47,88,.12);
+  stroke-width:.8;
+}
+.detailed-card-svg .card-svg-royal-rank{
+  font-size:28px;
+  font-weight:900;
+  text-anchor:middle;
+  dominant-baseline:middle;
+  letter-spacing:-.04em;
+}
+.detailed-card-svg .card-svg-royal-word{
+  fill:#1f2f56;
+  font-size:5.8px;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-anchor:middle;
+}
+.detailed-card-svg .card-svg-royal-line{
+  fill:none;
+  stroke:rgba(30,47,88,.24);
+  stroke-width:1;
+  stroke-linecap:round;
+}
+.detailed-card-svg .card-svg-ace-ring{
+  fill:none;
+  stroke-width:4;
+}
+.detailed-card-svg .svg-joker-mark .joker-cap-red{fill:#cc2a2a}
+.detailed-card-svg .svg-joker-mark .joker-cap-black{fill:#181818}
+.detailed-card-svg .svg-joker-mark .joker-cap-gold{fill:#d7b15e}
+.detailed-card-svg .svg-joker-mark .joker-face{fill:#fff7ea;stroke:#1f2f56;stroke-width:1.1}
+.detailed-card-svg .svg-joker-mark .joker-collar{fill:#d7b15e;stroke:#1f2f56;stroke-width:.9}
+.detailed-card-svg .svg-joker-mark .joker-eye{fill:#181818}
+.detailed-card-svg .svg-joker-mark .joker-smile{fill:none;stroke:#181818;stroke-width:1.2;stroke-linecap:round}
+.app.card-table-active .svg-playing-card .card-svg{
+  filter:drop-shadow(0 4px 6px rgba(17,17,17,.12));
+}
+.app.card-table-active .svg-playing-card.selected .card-svg{
+  filter:drop-shadow(0 8px 12px rgba(36,76,221,.20));
+}
+.app.card-table-active .meld-svg-card .card-svg-corner-rank{
+  font-size:9px;
+}
+.app.card-table-active .meld-svg-card .card-svg-royal-rank{
+  font-size:22px;
+}
+.app.card-table-active .meld-svg-card .card-svg-royal-word,
+.app.card-table-active .meld-svg-card .card-svg-joker,
+.app.card-table-active .meld-svg-card .card-svg-assigned{
+  display:none;
+}
