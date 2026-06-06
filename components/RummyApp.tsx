@@ -339,6 +339,32 @@ function removeCards(cards: Card[], ids: string[]) {
   return cards.filter((card) => !remove.has(card.id));
 }
 
+
+function selectedCardsFromHand(hand: Card[], ids: string[]) {
+  const wanted = new Set(ids);
+  const selected = hand.filter((card) => wanted.has(card.id));
+  return selected.length === wanted.size ? selected : null;
+}
+
+function hasDuplicateCardIds(cards: Card[]) {
+  const seen = new Set<string>();
+  return cards.some((card) => {
+    if (seen.has(card.id)) return true;
+    seen.add(card.id);
+    return false;
+  });
+}
+
+function cardStateHasDuplicateIds(state: CardGameState) {
+  const allCards = [
+    ...state.stock,
+    ...state.discard,
+    ...Object.values(state.hands).flat(),
+    ...state.melds.flatMap((meld) => meld.cards)
+  ];
+  return hasDuplicateCardIds(allCards);
+}
+
 function sameCardSet(a: Card[], b: Card[]) {
   return a.length === b.length && a.every((card) => b.some((other) => other.id === card.id));
 }
@@ -1267,18 +1293,19 @@ export default function RummyApp() {
   function makeMeld() {
     if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
     if (!cardState || !currentPlayer || selectedHandCards.length < 3) return;
-    const assignedMeld = classifyMeld(selectedHandCards);
-    if (!assignedMeld) {
-      setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "Select 3+ cards of the same rank, or a same-suit run." } } : previous);
-      return;
-    }
     setGame((previous: Game) => {
       const state = previous.cardGame;
       if (!state || state.phase !== "play") return previous;
       const hand = state.hands[state.turnPlayerId] || [];
-      if (!sameCardSet(selectedHandCards, hand.filter((card) => selectedCards.includes(card.id)))) return previous;
+      const selectedFromState = selectedCardsFromHand(hand, selectedCards);
+      if (!selectedFromState || selectedFromState.length < 3) return previous;
+      const assignedMeld = classifyMeld(selectedFromState);
+      if (!assignedMeld) {
+        return { ...previous, cardGame: { ...state, message: "Select 3+ cards of the same rank, or a same-suit run." } };
+      }
       const meld: Meld = { id: crypto.randomUUID(), ownerId: state.turnPlayerId, cards: assignedMeld.cards.map((meldCard) => withPointOwner(meldCard, state.turnPlayerId)), kind: assignedMeld.kind };
-      return { ...previous, cardGame: { ...state, hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, selectedCards) }, melds: [...state.melds, meld], meldedAfterWholeDiscard: state.meldedAfterWholeDiscard || state.drewWholeDiscard || false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} made a ${assignedMeld.kind}. Discard to end the turn.` } };
+      const nextCardGame = { ...state, hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, selectedCards) }, melds: [...state.melds, meld], meldedAfterWholeDiscard: state.meldedAfterWholeDiscard || state.drewWholeDiscard || false, message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} made a ${assignedMeld.kind}. Discard to end the turn.` };
+      return cardStateHasDuplicateIds(nextCardGame) ? { ...previous, cardGame: { ...state, message: "Move blocked because the card state looked out of sync. Try again." } } : { ...previous, cardGame: nextCardGame };
     });
     setSelectedCards([]);
   }
@@ -1286,25 +1313,24 @@ export default function RummyApp() {
   function layOffSelected() {
     if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
     if (!cardState || !selectedMeldId || selectedHandCards.length !== 1) return;
-    const card = selectedHandCards[0];
-    const targetMeld = cardState.melds.find((meld) => meld.id === selectedMeldId);
-    const layOffCard = targetMeld ? getLayOffCard(card, targetMeld) : null;
-    if (!targetMeld || !layOffCard) {
-      setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "That card cannot be laid off on the selected meld." } } : previous);
-      return;
-    }
     setGame((previous: Game) => {
       const state = previous.cardGame;
       if (!state || state.phase !== "play") return previous;
-      return {
-        ...previous,
-        cardGame: {
-          ...state,
-          hands: { ...state.hands, [state.turnPlayerId]: removeCards(state.hands[state.turnPlayerId] || [], [card.id]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: orderMeldCards(meld, [...meld.cards, withPointOwner(layOffCard, state.turnPlayerId)]) } : meld),
-          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(layOffCard)}.`
-        }
+      const hand = state.hands[state.turnPlayerId] || [];
+      const selectedFromState = selectedCardsFromHand(hand, selectedCards);
+      const card = selectedFromState?.[0];
+      const targetMeld = state.melds.find((meld) => meld.id === selectedMeldId);
+      const layOffCard = card && targetMeld ? getLayOffCard(card, targetMeld) : null;
+      if (!card || !targetMeld || !layOffCard) {
+        return { ...previous, cardGame: { ...state, message: "That card cannot be laid off on the selected meld." } };
+      }
+      const nextCardGame = {
+        ...state,
+        hands: { ...state.hands, [state.turnPlayerId]: removeCards(hand, [card.id]) },
+        melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: orderMeldCards(meld, [...meld.cards, withPointOwner(layOffCard, state.turnPlayerId)]) } : meld),
+        message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} laid off ${cardLabel(layOffCard)}.`
       };
+      return cardStateHasDuplicateIds(nextCardGame) ? { ...previous, cardGame: { ...state, message: "Move blocked because the card state looked out of sync. Try again." } } : { ...previous, cardGame: nextCardGame };
     });
     setSelectedCards([]);
     setSelectedMeldId(null);
@@ -1313,27 +1339,25 @@ export default function RummyApp() {
   function exchangeSelectedJoker() {
     if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
     if (!cardState || !selectedMeldId || selectedHandCards.length !== 1) return;
-    const handCard = selectedHandCards[0];
-    const targetMeld = cardState.melds.find((meld) => meld.id === selectedMeldId);
-    const joker = targetMeld ? findExchangeInMeld(handCard, targetMeld) : null;
-    if (!targetMeld || !joker) {
-      setGame((previous: Game) => previous.cardGame ? { ...previous, cardGame: { ...previous.cardGame, message: "Select the real card from your hand and the meld where the matching joker is used." } } : previous);
-      return;
-    }
-
     setGame((previous: Game) => {
       const state = previous.cardGame;
       if (!state || state.phase !== "play") return previous;
+      const hand = state.hands[state.turnPlayerId] || [];
+      const selectedFromState = selectedCardsFromHand(hand, selectedCards);
+      const handCard = selectedFromState?.[0];
+      const targetMeld = state.melds.find((meld) => meld.id === selectedMeldId);
+      const joker = handCard && targetMeld ? findExchangeInMeld(handCard, targetMeld) : null;
+      if (!handCard || !targetMeld || !joker) {
+        return { ...previous, cardGame: { ...state, message: "Select the real card from your hand and the meld where the matching joker is used." } };
+      }
       const cleanJoker = clearJoker(joker);
-      return {
-        ...previous,
-        cardGame: {
-          ...state,
-          hands: { ...state.hands, [state.turnPlayerId]: sortCards([...removeCards(state.hands[state.turnPlayerId] || [], [handCard.id]), cleanJoker]) },
-          melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: meld.cards.map((card) => card.id === joker.id ? withPointOwner(handCard, state.turnPlayerId) : card) } : meld),
-          message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} exchanged ${cardLabel(handCard)} for a joker.`
-        }
+      const nextCardGame = {
+        ...state,
+        hands: { ...state.hands, [state.turnPlayerId]: sortCards([...removeCards(hand, [handCard.id]), cleanJoker]) },
+        melds: state.melds.map((meld) => meld.id === selectedMeldId ? { ...meld, cards: meld.cards.map((card) => card.id === joker.id ? withPointOwner(handCard, state.turnPlayerId) : card) } : meld),
+        message: `${previous.players.find((player) => player.id === state.turnPlayerId)?.name || "Player"} exchanged ${cardLabel(handCard)} for a joker.`
       };
+      return cardStateHasDuplicateIds(nextCardGame) ? { ...previous, cardGame: { ...state, message: "Move blocked because the card state looked out of sync. Try again." } } : { ...previous, cardGame: nextCardGame };
     });
     setSelectedCards([]);
     setSelectedMeldId(null);
@@ -1342,11 +1366,14 @@ export default function RummyApp() {
   function discardSelected() {
     if (!canOperateCardTurn) { showDeviceTurnMessage(); return; }
     if (!cardState || selectedHandCards.length !== 1) return;
-    const card = selectedHandCards[0];
     setGame((previous: Game) => {
       const state = previous.cardGame;
       if (!state || state.phase !== "play") return previous;
-      const hand = removeCards(state.hands[state.turnPlayerId] || [], [card.id]);
+      const turnHand = state.hands[state.turnPlayerId] || [];
+      const selectedFromState = selectedCardsFromHand(turnHand, selectedCards);
+      const card = selectedFromState?.[0];
+      if (!card) return { ...previous, cardGame: { ...state, message: "Select one card from your current hand to discard." } };
+      const hand = removeCards(turnHand, [card.id]);
       const nextDealer = state.dealerId;
       const nextTurn = nextPlayerId(previous.players, state.turnPlayerId);
       const wholeDiscardPenalty = Boolean(state.drewWholeDiscard && !state.meldedAfterWholeDiscard);

@@ -1,0 +1,35 @@
+V169 — RULES QA + HARDENING
+
+Rules hardened in app code
+- Recomputed selected hand cards inside setGame updates for make meld, lay off, joker exchange, and discard.
+- Blocks stale/out-of-sync card selections caused by multi-device sync or seat switching.
+- Added duplicate-card-state guard after meld creation, lay-off, and joker exchange.
+- Keeps meld scoring ownership intact:
+  - original meld cards score to the meld maker
+  - laid-off cards score to the player who laid them off
+  - joker exchange replacement cards score to the player who exchanged
+- Keeps joker exchange order stable by replacing the joker in-place, without re-sorting the meld.
+- Preserves whole-discard-pile penalty handling.
+- Preserves closing-only round end and +15 closing bonus behavior.
+
+Automated QA added
+- Added scripts/rules-qa.mjs
+- Added npm script: npm run rules-qa
+- Automated checks cover:
+  - point values: 2–9 = 5, 10–K = 10, A/Joker = 15
+  - A low run: A-2-3
+  - A high run: Q-K-A
+  - wrap run: Q-K-A-2
+  - joker-filled run gaps
+  - joker-filled sets
+  - rejecting mixed-suit runs
+  - rejecting duplicate natural suits in sets
+  - lay-off before and after A-wrap runs
+  - exact joker exchange matching
+  - laid-off card ownership scoring
+
+Validation run
+- npm install --no-package-lock --no-audit --no-fund: passed
+- npm run rules-qa: passed
+- npx tsc --noEmit: passed
+- NEXT_PRIVATE_BUILD_WORKER=1 npm run build: passed completely
