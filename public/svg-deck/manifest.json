@@ -339,5 +339,10 @@
     "file": "BACK.svg",
     "rank": "BACK",
     "suit": ""
+  },
+  {
+    "file": "deck-preview.svg",
+    "rank": "PREVIEW",
+    "suit": ""
   }
 ]
