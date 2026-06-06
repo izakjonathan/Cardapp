@@ -1,32 +1,40 @@
-# Rummy 500
+# Rummy 500 — V170 Release Candidate
 
-Final cleaned app package.
+Playable Rummy 500 web app with shared rooms, saved games, phone-seat mode, SVG cards, joker rules, automatic scoring, and rules QA.
 
 ## Install
 
 ```bash
-npm install
+npm install --no-package-lock --no-audit --no-fund
+```
+
+## Run locally
+
+```bash
+npm run dev
+```
+
+## QA
+
+```bash
+npm run rules-qa
+npx tsc --noEmit
 ```
 
 ## Build
 
 ```bash
-npm run build
+NEXT_PRIVATE_BUILD_WORKER=1 npm run build
 ```
 
 ## Vercel
 
-Build command:
+The included `vercel.json` sets:
 
-```bash
-npm run build
-```
+- install: `npm install --no-package-lock --no-audit --no-fund`
+- build: `npm run vercel-build`
+- Node engine: `24.x`
 
-The package is set to use Node 24 and a single Next build worker for deployment stability.
+## Release notes
 
-## Notes
-
-- Blueprint visual design
-- UI Studio controls: Type, Space, Radius, Color, Layout, Presets
-- 2/3/4-player responsive layout
-- Supabase/local sync logic preserved
+See `docs/V170_RELEASE_CANDIDATE_REPORT.md` and `docs/DEPLOY_NOTES.md`.
