@@ -498,6 +498,35 @@ function cardFaceCenter(card: Card) {
 }
 
 
+function cardAssetCode(card?: Card | null) {
+  if (!card) return "BACK";
+  if (isJoker(card)) {
+    const match = String(card.id || "").match(/(\d+)$/);
+    const jokerIndex = match ? Math.min(4, Math.max(1, Number(match[1]))) : 1;
+    return `JOKER${jokerIndex}`;
+  }
+  const suitCode = card.suit === "♠" ? "S" : card.suit === "♥" ? "H" : card.suit === "♦" ? "D" : "C";
+  return `${card.rank}${suitCode}`;
+}
+
+function cardAssetSrc(card?: Card | null) {
+  return `/cards/${cardAssetCode(card)}.png`;
+}
+
+function CardAssetFace({ card }: { card?: Card | null }) {
+  const label = card ? cardLabel(card) : "Card back";
+  return (
+    <img
+      className="card-asset-face"
+      src={cardAssetSrc(card)}
+      alt={label}
+      draggable={false}
+      loading="eager"
+    />
+  );
+}
+
+
 type CardFaceSuit = Suit | "★";
 
 type PipPoint = { x: number; y: number; scale?: number };
@@ -1860,13 +1889,15 @@ export default function RummyApp() {
           ) : (
             <>
               <div className="card-table-row">
-                <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile">
+                <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile card-pile-with-asset">
                   <span>Stock</span>
                   <strong>{cardState.stock.length}</strong>
+                  <CardAssetFace />
                 </button>
-                <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile">
+                <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile card-pile-with-asset">
                   <span>Discard</span>
-                  <strong>{cardLabel(topDiscard)}</strong>
+                  <strong>{topDiscard ? cardLabel(topDiscard) : "—"}</strong>
+                  {topDiscard ? <CardAssetFace card={topDiscard} /> : null}
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
                   <span>Full pile</span>
@@ -1893,7 +1924,7 @@ export default function RummyApp() {
                       className={`playing-card svg-playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      <SvgCardFace card={card} />
+                      <CardAssetFace card={card} />
                     </button>
                   );
                 })}
@@ -1925,7 +1956,7 @@ export default function RummyApp() {
                           const isBaseOwner = pointOwnerId === meld.ownerId;
                           return (
                             <span key={card.id} className={`meld-owned-card ${isBaseOwner ? "base-owned-card" : "layoff-owned-card"}`} title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}>
-                              <span className="meld-svg-card"><SvgCardFace card={card} /></span>
+                              <span className="meld-svg-card"><CardAssetFace card={card} /></span>
                               <em>{pointOwner?.name || "Player"}</em>
                             </span>
                           );

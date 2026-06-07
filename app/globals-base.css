@@ -2737,3 +2737,62 @@ input{min-width:0;border:0;outline:none}
 .app.card-table-active .meld-svg-card .card-svg-assigned{
   display:none;
 }
+
+
+/* V177 full-card asset deck integration */
+.playing-card.svg-playing-card {
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.card-asset-face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 4px 5px rgba(17, 17, 17, .14));
+}
+
+.playing-card.selected .card-asset-face {
+  transform: translateY(-3px);
+  filter: drop-shadow(0 8px 12px rgba(36, 76, 221, .28));
+}
+
+.meld-svg-card .card-asset-face {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 4px rgba(17, 17, 17, .12));
+}
+
+.card-pile-with-asset {
+  position: relative;
+  overflow: visible;
+  min-height: 92px;
+}
+
+.card-pile-with-asset > .card-asset-face {
+  position: absolute;
+  right: 10px;
+  bottom: -20px;
+  width: 42px;
+  height: 59px;
+  opacity: .96;
+}
+
+.card-pile-with-asset.stock-pile > .card-asset-face {
+  opacity: .82;
+}
+
+@media (max-height: 760px) {
+  .card-pile-with-asset > .card-asset-face {
+    width: 36px;
+    height: 50px;
+    bottom: -15px;
+  }
+}

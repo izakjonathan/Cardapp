@@ -1,6 +1,6 @@
 {
   "name": "rummy500-clean",
-  "version": "172.0.0",
+  "version": "174.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
