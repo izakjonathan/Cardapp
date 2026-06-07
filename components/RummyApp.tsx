@@ -1889,15 +1889,19 @@ export default function RummyApp() {
           ) : (
             <>
               <div className="card-table-row">
-                <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile card-pile-with-asset">
-                  <span>Stock</span>
-                  <strong>{cardState.stock.length}</strong>
-                  <CardAssetFace />
+                <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile card-pile-with-asset deck-pile-card">
+                  <div className="pile-copy">
+                    <span>Stock</span>
+                    <strong>{cardState.stock.length}</strong>
+                  </div>
+                  <div className="pile-art"><CardAssetFace /></div>
                 </button>
-                <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile card-pile-with-asset">
-                  <span>Discard</span>
-                  <strong>{topDiscard ? cardLabel(topDiscard) : "—"}</strong>
-                  {topDiscard ? <CardAssetFace card={topDiscard} /> : null}
+                <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile card-pile-with-asset deck-pile-card">
+                  <div className="pile-copy">
+                    <span>Discard</span>
+                    <strong>{topDiscard ? cardLabel(topDiscard) : "—"}</strong>
+                  </div>
+                  <div className="pile-art">{topDiscard ? <CardAssetFace card={topDiscard} /> : null}</div>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
                   <span>Full pile</span>

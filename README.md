@@ -38,3 +38,8 @@ The included `vercel.json` sets:
 ## Release notes
 
 See `docs/V170_RELEASE_CANDIDATE_REPORT.md` and `docs/DEPLOY_NOTES.md`.
+
+
+## V178
+- normalized full-card PNG assets to a consistent master card canvas
+- improved in-app clipping / cutout rendering for hand, meld, stock and discard cards

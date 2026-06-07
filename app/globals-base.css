@@ -2739,13 +2739,15 @@ input{min-width:0;border:0;outline:none}
 }
 
 
-/* V177 full-card asset deck integration */
+/* V178 normalized full-card asset deck */
 .playing-card.svg-playing-card {
   padding: 0;
   border: none;
   background: transparent;
   box-shadow: none;
-  overflow: visible;
+  overflow: hidden;
+  border-radius: 13px;
+  display: block;
 }
 
 .card-asset-face {
@@ -2756,17 +2758,27 @@ input{min-width:0;border:0;outline:none}
   pointer-events: none;
   user-select: none;
   -webkit-user-drag: none;
+  border-radius: inherit;
   filter: drop-shadow(0 4px 5px rgba(17, 17, 17, .14));
 }
 
 .playing-card.selected .card-asset-face {
-  transform: translateY(-3px);
-  filter: drop-shadow(0 8px 12px rgba(36, 76, 221, .28));
+  transform: translateY(-2px);
+  filter: drop-shadow(0 8px 12px rgba(36, 76, 221, .26));
+}
+
+.meld-svg-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 .meld-svg-card .card-asset-face {
   width: 100%;
   height: 100%;
+  object-fit: contain;
   filter: drop-shadow(0 3px 4px rgba(17, 17, 17, .12));
 }
 
@@ -2779,20 +2791,399 @@ input{min-width:0;border:0;outline:none}
 .card-pile-with-asset > .card-asset-face {
   position: absolute;
   right: 10px;
-  bottom: -20px;
+  bottom: -18px;
   width: 42px;
   height: 59px;
-  opacity: .96;
+  opacity: .98;
 }
 
 .card-pile-with-asset.stock-pile > .card-asset-face {
-  opacity: .82;
+  opacity: .9;
 }
 
 @media (max-height: 760px) {
   .card-pile-with-asset > .card-asset-face {
     width: 36px;
     height: 50px;
-    bottom: -15px;
+    bottom: -14px;
+  }
+}
+
+
+/* V179 card sizing + hand layout polish */
+.app.card-table-active {
+  --hand-card-width: clamp(50px, 12.2vw, 62px);
+  --hand-card-height: calc(var(--hand-card-width) * 1.468);
+  --hand-card-gap: clamp(5px, 1.45vw, 9px);
+}
+
+.app.card-table-active .hand-scroll-wrap {
+  padding: 7px 7px 9px;
+  border-radius: 18px;
+}
+
+.app.card-table-active .hand-scroll {
+  gap: var(--hand-card-gap);
+  padding: 2px 1px 8px;
+  align-items: start;
+}
+
+.app.card-table-active .hand-scroll.two-row-hand {
+  row-gap: 8px;
+  column-gap: var(--hand-card-gap);
+}
+
+.app.card-table-active .playing-card.svg-playing-card {
+  flex: 0 0 var(--hand-card-width) !important;
+  width: var(--hand-card-width) !important;
+  min-width: var(--hand-card-width) !important;
+  height: var(--hand-card-height) !important;
+  border-radius: 9px !important;
+  overflow: visible !important;
+  transform-origin: center bottom;
+}
+
+.app.card-table-active .playing-card.svg-playing-card .card-asset-face {
+  border-radius: 8px;
+  object-fit: contain;
+  transform: translateZ(0);
+  filter: drop-shadow(0 3px 4px rgba(17, 17, 17, .16));
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected {
+  transform: translateY(-7px) scale(1.045);
+  z-index: 5;
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected .card-asset-face {
+  filter: drop-shadow(0 9px 13px rgba(36, 76, 221, .30));
+}
+
+.app.card-table-active .card-pile-with-asset {
+  min-height: 78px;
+  padding-right: 56px;
+}
+
+.app.card-table-active .card-pile-with-asset > .card-asset-face {
+  width: 44px;
+  height: 64px;
+  right: 9px;
+  bottom: 6px;
+  border-radius: 7px;
+  filter: drop-shadow(0 4px 6px rgba(17, 17, 17, .15));
+}
+
+.app.card-table-active .card-pile-with-asset.stock-pile > .card-asset-face {
+  opacity: .92;
+}
+
+.app.card-table-active .meld-card-tray {
+  gap: 7px;
+  align-items: flex-start;
+}
+
+.app.card-table-active .meld-owned-card {
+  min-width: 40px;
+}
+
+.app.card-table-active .meld-owned-card .meld-svg-card,
+.app.card-table-active .meld-svg-card {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 59px !important;
+  border-radius: 7px !important;
+  overflow: visible !important;
+}
+
+.app.card-table-active .meld-svg-card .card-asset-face {
+  border-radius: 7px;
+  filter: drop-shadow(0 2px 4px rgba(17, 17, 17, .14));
+}
+
+.app.card-table-active .meld-owned-card em {
+  max-width: 48px;
+  margin-top: 3px;
+  font-size: 7px;
+  line-height: 1;
+  opacity: .78;
+}
+
+@media (max-width: 390px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(47px, 11.8vw, 56px);
+    --hand-card-gap: 5px;
+  }
+
+  .app.card-table-active .card-pile-with-asset > .card-asset-face {
+    width: 39px;
+    height: 57px;
+  }
+
+  .app.card-table-active .meld-owned-card .meld-svg-card,
+  .app.card-table-active .meld-svg-card {
+    width: 36px !important;
+    min-width: 36px !important;
+    height: 53px !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(46px, 11.5vw, 55px);
+    --hand-card-gap: 5px;
+  }
+
+  .app.card-table-active .hand-scroll-wrap {
+    padding-top: 5px;
+    padding-bottom: 7px;
+  }
+
+  .app.card-table-active .hand-scroll.two-row-hand {
+    row-gap: 6px;
+  }
+
+  .app.card-table-active .playing-card.svg-playing-card.selected {
+    transform: translateY(-5px) scale(1.035);
+  }
+
+  .app.card-table-active .card-pile-with-asset {
+    min-height: 72px;
+  }
+
+  .app.card-table-active .card-pile-with-asset > .card-asset-face {
+    width: 36px;
+    height: 53px;
+    bottom: 6px;
+  }
+}
+
+
+/* V182 approved-artwork wrapper polish */
+.app.card-table-active {
+  --hand-card-width: clamp(52px, 12.8vw, 66px);
+  --hand-card-height: calc(var(--hand-card-width) * 1.468);
+  --hand-card-gap: clamp(6px, 1.65vw, 10px);
+}
+
+.app.card-table-active .hand-scroll-wrap {
+  padding: 9px 8px 10px;
+  border-radius: 18px;
+  background: rgba(239,233,220,.34);
+  overflow: visible;
+}
+
+.app.card-table-active .hand-scroll {
+  gap: var(--hand-card-gap);
+  padding: 1px 0 7px;
+  overflow: visible;
+}
+
+.app.card-table-active .hand-scroll.two-row-hand {
+  row-gap: 10px;
+}
+
+.app.card-table-active .playing-card.svg-playing-card {
+  flex: 0 0 var(--hand-card-width) !important;
+  width: var(--hand-card-width) !important;
+  min-width: var(--hand-card-width) !important;
+  height: var(--hand-card-height) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  display: block !important;
+  transform-origin: center bottom;
+}
+
+.app.card-table-active .playing-card.svg-playing-card .card-asset-face {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 7px;
+  display: block;
+  filter: drop-shadow(0 3px 4px rgba(17,17,17,.16));
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected {
+  transform: translateY(-8px) scale(1.045);
+  z-index: 20;
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 2px solid var(--passport-blue);
+  border-radius: 10px;
+  pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.65);
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected .card-asset-face {
+  filter: drop-shadow(0 10px 14px rgba(36,76,221,.30));
+}
+
+.app.card-table-active .card-table-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.app.card-table-active .card-pile.deck-pile-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  min-height: 86px;
+  padding: 10px 9px 10px 14px;
+  overflow: hidden;
+}
+
+.app.card-table-active .deck-pile-card .pile-copy {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  min-width: 0;
+}
+
+.app.card-table-active .deck-pile-card .pile-copy span {
+  font-size: 9px;
+  letter-spacing: .32em;
+}
+
+.app.card-table-active .deck-pile-card .pile-copy strong {
+  font-size: 30px;
+  line-height: .95;
+  letter-spacing: .02em;
+}
+
+.app.card-table-active .deck-pile-card .pile-art {
+  width: 44px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  margin-left: 5px;
+}
+
+.app.card-table-active .deck-pile-card .pile-art .card-asset-face {
+  width: 44px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 6px;
+  filter: drop-shadow(0 4px 6px rgba(17,17,17,.16));
+}
+
+.app.card-table-active .card-pile-with-asset > .card-asset-face {
+  position: static;
+  width: auto;
+  height: auto;
+}
+
+.app.card-table-active .meld-zone {
+  padding: 9px;
+  border-radius: 18px;
+  max-height: 132px;
+}
+
+.app.card-table-active .meld-card {
+  padding: 9px 9px 10px;
+  border-radius: 16px;
+}
+
+.app.card-table-active .meld-card-tray {
+  gap: 8px;
+  align-items: flex-start;
+  padding-top: 6px;
+}
+
+.app.card-table-active .meld-owned-card {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 42px;
+}
+
+.app.card-table-active .meld-owned-card .meld-svg-card,
+.app.card-table-active .meld-svg-card {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 62px !important;
+  border-radius: 6px !important;
+  overflow: visible !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.app.card-table-active .meld-svg-card .card-asset-face {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  filter: drop-shadow(0 2px 4px rgba(17,17,17,.13));
+}
+
+.app.card-table-active .meld-owned-card em {
+  margin: 0;
+  max-width: 50px;
+  font-size: 7px;
+  line-height: 1;
+  letter-spacing: .08em;
+  opacity: .74;
+}
+
+@media (max-width: 390px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(49px, 12.1vw, 58px);
+    --hand-card-gap: 5px;
+  }
+
+  .app.card-table-active .card-pile.deck-pile-card {
+    min-height: 78px;
+    padding: 8px 8px 8px 11px;
+  }
+
+  .app.card-table-active .deck-pile-card .pile-art,
+  .app.card-table-active .deck-pile-card .pile-art .card-asset-face {
+    width: 38px;
+    height: 56px;
+  }
+
+  .app.card-table-active .deck-pile-card .pile-copy strong {
+    font-size: 26px;
+  }
+
+  .app.card-table-active .meld-owned-card .meld-svg-card,
+  .app.card-table-active .meld-svg-card {
+    width: 37px !important;
+    min-width: 37px !important;
+    height: 54px !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(47px, 11.8vw, 56px);
+    --hand-card-gap: 5px;
+  }
+
+  .app.card-table-active .hand-scroll.two-row-hand {
+    row-gap: 7px;
+  }
+
+  .app.card-table-active .card-pile.deck-pile-card {
+    min-height: 74px;
+  }
+
+  .app.card-table-active .deck-pile-card .pile-art,
+  .app.card-table-active .deck-pile-card .pile-art .card-asset-face {
+    width: 36px;
+    height: 53px;
+  }
+
+  .app.card-table-active .meld-zone {
+    max-height: 112px;
   }
 }
