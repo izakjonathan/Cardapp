@@ -3832,3 +3832,221 @@ body {
     max-height: 190px;
   }
 }
+
+
+/* V186 card visibility + compact table balance */
+.app.card-table-active {
+  --hand-card-width: clamp(58px, 15.1vw, 72px);
+  --hand-card-height: calc(var(--hand-card-width) * 1.468);
+  --hand-card-gap: 7px;
+}
+
+.app.card-table-active .playable-cardgame {
+  max-width: calc(100vw - 18px);
+  padding: 8px;
+  gap: 7px;
+}
+
+.app.card-table-active .play-section {
+  padding: 7px;
+  gap: 7px;
+}
+
+.app.card-table-active .play-section-head {
+  min-height: 14px;
+}
+
+.app.card-table-active .piles-section {
+  gap: 7px;
+}
+
+.app.card-table-active .card-table-row {
+  gap: 7px;
+}
+
+.app.card-table-active .card-pile {
+  min-height: 72px;
+}
+
+.app.card-table-active .deck-pile-card .pile-art {
+  width: 40px;
+  height: 59px;
+}
+
+.app.card-table-active .pile-asset-shell,
+.app.card-table-active .card-asset-shell {
+  padding: 2px;
+  overflow: hidden;
+  background: #fffdfa;
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 1.4px rgba(36,76,221,.18),
+    0 4px 10px rgba(12,24,68,.12);
+}
+
+.app.card-table-active .pile-asset-shell {
+  border-radius: 9px;
+}
+
+.app.card-table-active .playing-card.svg-playing-card .card-asset-face,
+.app.card-table-active .meld-svg-card .card-asset-face,
+.app.card-table-active .pile-art .card-asset-face {
+  width: 100%;
+  height: 100%;
+  object-fit: contain !important;
+  border-radius: 8px;
+  display: block;
+}
+
+.app.card-table-active .hand-scroll-wrap {
+  padding: 8px 7px 9px;
+  min-height: calc(var(--hand-card-height) * 2 + 24px);
+  overflow: hidden;
+}
+
+.app.card-table-active .hand-scroll {
+  align-items: start;
+  gap: var(--hand-card-gap);
+  padding: 1px 1px 9px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+.app.card-table-active .hand-scroll.two-row-hand {
+  row-gap: 8px;
+  column-gap: var(--hand-card-gap);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.app.card-table-active .playing-card.svg-playing-card {
+  border-radius: 10px !important;
+  overflow: visible !important;
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected {
+  transform: translateY(-5px) scale(1.035);
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected::after {
+  inset: -4px;
+  border-radius: 13px;
+}
+
+.app.card-table-active .card-controls-grid {
+  gap: 7px;
+}
+
+.app.card-table-active .card-controls-grid .card-action {
+  min-height: 34px;
+}
+
+.app.card-table-active .meld-zone {
+  min-height: 122px;
+  max-height: 205px;
+}
+
+.app.card-table-active .mini-help {
+  min-height: 92px;
+}
+
+.app.card-table-active .meld-svg-card,
+.app.card-table-active .meld-owned-card .meld-svg-card {
+  width: 46px !important;
+  min-width: 46px !important;
+  height: 68px !important;
+}
+
+.app.card-table-active .opponent-hands > div {
+  min-height: 34px;
+}
+
+@media (max-width: 430px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(54px, 14.8vw, 64px);
+    --hand-card-gap: 6px;
+  }
+
+  .app.card-table-active .playable-cardgame {
+    padding: 8px;
+    gap: 7px;
+  }
+
+  .app.card-table-active .deck-pile-card .pile-art {
+    width: 37px;
+    height: 54px;
+  }
+
+  .app.card-table-active .hand-scroll-wrap {
+    min-height: calc(var(--hand-card-height) * 2 + 22px);
+  }
+
+  .app.card-table-active .meld-zone {
+    min-height: 126px;
+    max-height: 210px;
+  }
+
+  .app.card-table-active .meld-svg-card,
+  .app.card-table-active .meld-owned-card .meld-svg-card {
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 62px !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .app.card-table-active {
+    --hand-card-width: clamp(52px, 14vw, 62px);
+    --hand-card-gap: 6px;
+  }
+
+  .app.card-table-active .topbar-chip {
+    min-height: 38px;
+  }
+
+  .app.card-table-active .game-status-panel {
+    min-height: 38px;
+  }
+
+  .app.card-table-active .seat-selector {
+    min-height: 28px;
+  }
+
+  .app.card-table-active .seat-selector button {
+    min-height: 23px;
+  }
+
+  .app.card-table-active .card-pile {
+    min-height: 66px;
+  }
+
+  .app.card-table-active .deck-pile-card .pile-art {
+    width: 34px;
+    height: 50px;
+  }
+
+  .app.card-table-active .card-message {
+    min-height: 28px;
+    max-height: 34px;
+    padding: 6px 9px;
+  }
+
+  .app.card-table-active .hand-scroll-wrap {
+    min-height: calc(var(--hand-card-height) * 2 + 18px);
+    padding: 6px;
+  }
+
+  .app.card-table-active .hand-scroll.two-row-hand {
+    row-gap: 6px;
+  }
+
+  .app.card-table-active .card-controls-grid .card-action {
+    min-height: 31px;
+  }
+
+  .app.card-table-active .meld-zone {
+    min-height: 108px;
+    max-height: 170px;
+  }
+}
