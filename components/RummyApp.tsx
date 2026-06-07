@@ -1888,20 +1888,22 @@ export default function RummyApp() {
             <div className="card-empty-state">Deal a 56-card deck including 4 jokers. Jokers can be used as any card, exchanged back out with the real matching card, and automatic round scores are added only when a player closes by discarding their last card.</div>
           ) : (
             <>
-              <div className="card-table-row">
+              <section className="play-section piles-section">
+                <div className="play-section-head"><span className="play-section-kicker">Pile / discard</span></div>
+                <div className="card-table-row">
                 <button type="button" disabled={cardState.phase !== "draw" || !canOperateCardTurn} onClick={drawFromStock} className="card-pile stock-pile card-pile-with-asset deck-pile-card">
                   <div className="pile-copy">
                     <span>Stock</span>
                     <strong>{cardState.stock.length}</strong>
                   </div>
-                  <div className="pile-art"><CardAssetFace /></div>
+                  <div className="pile-art"><span className="card-asset-shell pile-asset-shell"><CardAssetFace /></span></div>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile card-pile-with-asset deck-pile-card">
                   <div className="pile-copy">
                     <span>Discard</span>
                     <strong>{topDiscard ? cardLabel(topDiscard) : "—"}</strong>
                   </div>
-                  <div className="pile-art">{topDiscard ? <CardAssetFace card={topDiscard} /> : null}</div>
+                  <div className="pile-art">{topDiscard ? <span className="card-asset-shell pile-asset-shell"><CardAssetFace card={topDiscard} /></span> : null}</div>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
                   <span>Full pile</span>
@@ -1910,7 +1912,10 @@ export default function RummyApp() {
               </div>
 
               <div className="card-message">{cardState.message}</div>
+              </section>
 
+              <section className="play-section hand-section">
+              <div className="play-section-head"><span className="play-section-kicker">Your hand</span></div>
               <div className="hand-scroll-wrap">
               <div
                 className={`hand-scroll ${handRows > 1 ? "two-row-hand" : ""}`}
@@ -1928,7 +1933,7 @@ export default function RummyApp() {
                       className={`playing-card svg-playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      <CardAssetFace card={card} />
+                      <span className="card-asset-shell"><CardAssetFace card={card} /></span>
                     </button>
                   );
                 })}
@@ -1942,6 +1947,10 @@ export default function RummyApp() {
                 <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !canOperateCardTurn} onClick={discardSelected} className="glass-soft card-action">Discard</button>
               </div>
 
+              </section>
+
+              <section className="play-section melds-section">
+              <div className="play-section-head"><span className="play-section-kicker">Melds</span></div>
               <div className="meld-zone">
                 {cardState.melds.length === 0 ? (
                   <div className="mini-help">Melds will appear here. Tap a meld, then select one card to lay off or exchange a matching joker.</div>
@@ -1960,7 +1969,7 @@ export default function RummyApp() {
                           const isBaseOwner = pointOwnerId === meld.ownerId;
                           return (
                             <span key={card.id} className={`meld-owned-card ${isBaseOwner ? "base-owned-card" : "layoff-owned-card"}`} title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}>
-                              <span className="meld-svg-card"><CardAssetFace card={card} /></span>
+                              <span className="meld-svg-card"><span className="card-asset-shell"><CardAssetFace card={card} /></span></span>
                               <em>{pointOwner?.name || "Player"}</em>
                             </span>
                           );
@@ -1970,6 +1979,8 @@ export default function RummyApp() {
                   );
                 })}
               </div>
+
+              </section>
 
               <div className="opponent-hands">
                 {game.players.map((player) => (
