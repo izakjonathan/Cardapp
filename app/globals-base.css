@@ -4050,3 +4050,377 @@ body {
     max-height: 170px;
   }
 }
+
+/* V187 simple cards + stripped gameplay ui */
+.app.card-table-active .playable-cardgame {
+  border: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 6px 2px 10px !important;
+  gap: 10px !important;
+  max-width: calc(100vw - 14px) !important;
+}
+
+.app.card-table-active .game-topbar {
+  gap: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+.app.card-table-active .topbar-chip,
+.app.card-table-active .game-status-panel,
+.app.card-table-active .seat-selector,
+.app.card-table-active .card-message,
+.app.card-table-active .card-pile,
+.app.card-table-active .hand-scroll-wrap,
+.app.card-table-active .meld-zone,
+.app.card-table-active .opponent-hands > div {
+  border-width: 1.5px !important;
+  box-shadow: none !important;
+}
+
+.app.card-table-active .topbar-chip {
+  min-height: 42px !important;
+  border-radius: 18px !important;
+  padding: 6px 12px !important;
+}
+
+.app.card-table-active .topbar-chip span {
+  font-size: 8px !important;
+  letter-spacing: 0.26em !important;
+}
+
+.app.card-table-active .topbar-chip strong {
+  font-size: 17px !important;
+}
+
+.app.card-table-active .game-status-panel {
+  min-height: 42px !important;
+  padding: 7px 8px !important;
+  border-radius: 18px !important;
+}
+
+.app.card-table-active .turn-chip strong {
+  font-size: 18px !important;
+}
+
+.app.card-table-active .game-status-panel .primary-card-action {
+  min-height: 32px !important;
+  padding: 0 14px !important;
+  font-size: 13px !important;
+  border-radius: 16px !important;
+}
+
+.app.card-table-active .seat-selector {
+  min-height: 32px !important;
+  border-radius: 16px !important;
+  padding: 3px !important;
+  gap: 4px !important;
+}
+
+.app.card-table-active .seat-selector span { display:none !important; }
+.app.card-table-active .seat-selector button {
+  min-height: 25px !important;
+  font-size: 12px !important;
+  padding: 0 10px !important;
+  border-radius: 13px !important;
+}
+
+.app.card-table-active .play-section {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  gap: 6px !important;
+}
+
+.app.card-table-active .play-section-head {
+  min-height: unset !important;
+  margin-bottom: 0 !important;
+}
+
+.app.card-table-active .play-section-kicker {
+  font-size: 8px !important;
+  letter-spacing: 0.3em !important;
+  color: rgba(44,74,202,.9) !important;
+}
+
+.app.card-table-active .card-table-row {
+  grid-template-columns: 1fr 1fr .85fr !important;
+  gap: 7px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.app.card-table-active .card-pile {
+  min-height: 72px !important;
+  border-radius: 18px !important;
+  padding: 8px 8px 8px 10px !important;
+  background: rgba(255,255,255,.36) !important;
+}
+
+.app.card-table-active .card-pile span,
+.app.card-table-active .deck-pile-card .pile-copy span {
+  font-size: 8px !important;
+  letter-spacing: 0.28em !important;
+}
+
+.app.card-table-active .card-pile strong,
+.app.card-table-active .deck-pile-card .pile-copy strong {
+  font-size: 26px !important;
+  line-height: 0.95 !important;
+}
+
+.app.card-table-active .deck-pile-card .pile-art {
+  width: 43px !important;
+  height: 62px !important;
+  margin-left: 6px !important;
+}
+
+.app.card-table-active .pile-art .card-svg,
+.app.card-table-active .hand-scroll .card-svg,
+.app.card-table-active .meld-card-tray .card-svg {
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+}
+
+.app.card-table-active .card-message {
+  min-height: 32px !important;
+  max-height: 42px !important;
+  border-radius: 15px !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+}
+
+.app.card-table-active {
+  --hand-card-width: 64px;
+  --hand-card-height: 90px;
+  --hand-card-gap: 7px;
+}
+
+.app.card-table-active .hand-section,
+.app.card-table-active .melds-section { margin-top: 2px !important; }
+
+.app.card-table-active .hand-scroll-wrap {
+  margin: 0 !important;
+  padding: 7px !important;
+  min-height: calc(var(--hand-card-height) * 2 + 18px) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.26) !important;
+}
+
+.app.card-table-active .hand-scroll {
+  gap: var(--hand-card-gap) !important;
+  padding: 0 !important;
+  align-items: flex-start !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.app.card-table-active .hand-scroll.two-row-hand {
+  row-gap: 8px !important;
+  column-gap: var(--hand-card-gap) !important;
+}
+
+.app.card-table-active .playing-card.svg-playing-card {
+  width: var(--hand-card-width) !important;
+  min-width: var(--hand-card-width) !important;
+  height: var(--hand-card-height) !important;
+  flex: 0 0 var(--hand-card-width) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
+  overflow: visible !important;
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected {
+  transform: translateY(-4px) scale(1.02) !important;
+}
+
+.app.card-table-active .playing-card.svg-playing-card.selected::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 2px solid var(--passport-blue);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.app.card-table-active .playing-card .card-svg-face {
+  fill: #fffdfa !important;
+}
+
+.app.card-table-active .playing-card .card-svg-edge {
+  stroke: rgba(36,76,221,.22) !important;
+  stroke-width: 1.4px !important;
+  fill: none !important;
+}
+
+.app.card-table-active .playing-card .card-svg-inner,
+.app.card-table-active .playing-card .card-svg-shadow,
+.app.card-table-active .playing-card .card-svg-ace-ring,
+.app.card-table-active .playing-card .card-svg-royal-panel,
+.app.card-table-active .playing-card .card-svg-royal-inner,
+.app.card-table-active .playing-card .card-svg-royal-line,
+.app.card-table-active .playing-card .card-svg-royal-word,
+.app.card-table-active .playing-card .card-svg-back-panel,
+.app.card-table-active .playing-card .card-svg-back-dot {
+  display: none !important;
+}
+
+.app.card-table-active .playing-card .card-svg-corner-rank {
+  font-size: 15px !important;
+  font-weight: 900 !important;
+}
+
+.app.card-table-active .playing-card .card-svg-honor-rank {
+  font-size: 26px !important;
+  font-weight: 900 !important;
+  text-anchor: middle !important;
+}
+
+.app.card-table-active .playing-card .card-svg-joker {
+  font-size: 16px !important;
+  font-weight: 900 !important;
+}
+
+.app.card-table-active .playing-card .card-svg-assigned {
+  font-size: 10px !important;
+}
+
+.app.card-table-active .playing-card .svg-suit,
+.app.card-table-active .playing-card .card-svg-center {
+  opacity: 1 !important;
+}
+
+.app.card-table-active .playing-card .card-svg-center .svg-suit path,
+.app.card-table-active .playing-card .card-svg-center .svg-suit circle,
+.app.card-table-active .playing-card .card-svg-center path,
+.app.card-table-active .playing-card .card-svg-center circle {
+  stroke: none !important;
+}
+
+.app.card-table-active .card-controls-grid.gameplay-bottom-controls {
+  order: 99;
+  margin-top: 4px !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+}
+
+.app.card-table-active .card-controls-grid.gameplay-bottom-controls .card-action {
+  min-height: 30px !important;
+  padding: 0 6px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+}
+
+.app.card-table-active .meld-zone {
+  min-height: 140px !important;
+  max-height: 220px !important;
+  padding: 7px !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.26) !important;
+}
+
+.app.card-table-active .mini-help {
+  min-height: 96px !important;
+  padding: 14px !important;
+  border-radius: 14px !important;
+  font-size: 13px !important;
+}
+
+.app.card-table-active .meld-card {
+  border-width: 1.5px !important;
+  border-radius: 15px !important;
+  box-shadow: none !important;
+  padding: 8px !important;
+  gap: 7px !important;
+}
+
+.app.card-table-active .meld-heading span {
+  font-size: 8px !important;
+  letter-spacing: 0.24em !important;
+}
+
+.app.card-table-active .meld-heading strong {
+  font-size: 12px !important;
+}
+
+.app.card-table-active .meld-card-tray { gap: 7px !important; }
+
+.app.card-table-active .meld-owned-card {
+  min-width: 42px !important;
+  gap: 3px !important;
+}
+
+.app.card-table-active .meld-svg-card,
+.app.card-table-active .meld-owned-card .meld-svg-card {
+  width: 42px !important;
+  min-width: 42px !important;
+  height: 59px !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.app.card-table-active .meld-owned-card em {
+  font-size: 8px !important;
+}
+
+.app.card-table-active .opponent-hands {
+  grid-template-columns: repeat(3, minmax(0,1fr)) !important;
+  gap: 6px !important;
+  margin-top: 2px !important;
+}
+
+.app.card-table-active .opponent-hands > div {
+  min-height: 34px !important;
+  padding: 5px 8px !important;
+  border-radius: 15px !important;
+}
+
+.app.card-table-active .opponent-hands span {
+  font-size: 10px !important;
+}
+
+.app.card-table-active .opponent-hands strong {
+  font-size: 18px !important;
+}
+
+@media (max-width: 430px) {
+  .app.card-table-active {
+    --hand-card-width: 58px;
+    --hand-card-height: 82px;
+    --hand-card-gap: 6px;
+  }
+
+  .app.card-table-active .topbar-chip,
+  .app.card-table-active .game-status-panel { min-height: 40px !important; }
+
+  .app.card-table-active .turn-chip strong { font-size: 16px !important; }
+  .app.card-table-active .card-pile { min-height: 66px !important; }
+  .app.card-table-active .deck-pile-card .pile-art { width: 38px !important; height: 55px !important; }
+  .app.card-table-active .hand-scroll-wrap { min-height: calc(var(--hand-card-height) * 2 + 16px) !important; }
+  .app.card-table-active .meld-zone { min-height: 126px !important; max-height: 190px !important; }
+  .app.card-table-active .card-controls-grid.gameplay-bottom-controls { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .app.card-table-active .meld-svg-card,
+  .app.card-table-active .meld-owned-card .meld-svg-card { width: 38px !important; min-width: 38px !important; height: 54px !important; }
+}
+
+@media (max-height: 760px) {
+  .app.card-table-active {
+    --hand-card-width: 54px;
+    --hand-card-height: 77px;
+  }
+  .app.card-table-active .playable-cardgame { gap: 8px !important; }
+  .app.card-table-active .topbar-chip,
+  .app.card-table-active .game-status-panel { min-height: 38px !important; }
+  .app.card-table-active .hand-scroll-wrap { min-height: calc(var(--hand-card-height) * 2 + 14px) !important; }
+  .app.card-table-active .card-message { max-height: 36px !important; }
+  .app.card-table-active .meld-zone { min-height: 112px !important; max-height: 156px !important; }
+  .app.card-table-active .card-controls-grid.gameplay-bottom-controls .card-action { min-height: 28px !important; font-size: 10.5px !important; }
+}

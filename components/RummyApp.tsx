@@ -661,6 +661,35 @@ function JokerMark() {
   );
 }
 
+function SimpleHonorCenter({ rank, suit }: { rank: string; suit: CardFaceSuit }) {
+  const tone = suitTone(suit);
+  return (
+    <g className="card-svg-center simple-honor-center">
+      <SuitMark suit={suit} x={50} y={52} scale={0.26} className="svg-suit" />
+      <text className="card-svg-honor-rank" x="50" y="90" style={{ fill: tone }}>{rank}</text>
+    </g>
+  );
+}
+
+function SimpleBackFace() {
+  return (
+    <svg className="card-svg simple-back-card" viewBox="0 0 100 140" role="img" aria-label="Card back">
+      <rect className="card-svg-face" x="4" y="4" width="92" height="132" rx="13" />
+      <rect className="card-svg-edge" x="8" y="8" width="84" height="124" rx="11" />
+      <rect className="card-svg-back-panel" x="17" y="17" width="66" height="106" rx="8" />
+      <path className="card-svg-back-diamond" d="M50 35 L67 53 L50 71 L33 53 Z" />
+      <path className="card-svg-back-diamond" d="M50 69 L67 87 L50 105 L33 87 Z" />
+      <circle className="card-svg-back-dot" cx="50" cy="53" r="5" />
+      <circle className="card-svg-back-dot" cx="50" cy="87" r="5" />
+    </svg>
+  );
+}
+
+function FlatCardFace({ card }: { card?: Card | null }) {
+  if (!card) return <SimpleBackFace />;
+  return <SvgCardFace card={card} />;
+}
+
 function SvgCardFace({ card }: { card: Card }) {
   const jokerCard = isJoker(card);
   const faceSuit = cardFaceSuit(card) as CardFaceSuit;
@@ -685,7 +714,7 @@ function SvgCardFace({ card }: { card: Card }) {
           {assigned ? <text className={`card-svg-assigned ${isRedSuitValue(card.asSuit) ? "assigned-red" : "assigned-black"}`} x="50" y="124">{card.asRank}{card.asSuit}</text> : null}
         </>
       ) : showRoyal ? (
-        <RoyalCenter rank={faceRank} suit={faceSuit} />
+        <SimpleHonorCenter rank={faceRank} suit={faceSuit} />
       ) : (
         <NumberPips rank={faceRank} suit={faceSuit} />
       )}
@@ -1896,14 +1925,14 @@ export default function RummyApp() {
                     <span>Stock</span>
                     <strong>{cardState.stock.length}</strong>
                   </div>
-                  <div className="pile-art"><span className="card-asset-shell pile-asset-shell"><CardAssetFace /></span></div>
+                  <div className="pile-art"><FlatCardFace /></div>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawFromDiscard} className="card-pile discard-pile card-pile-with-asset deck-pile-card">
                   <div className="pile-copy">
                     <span>Discard</span>
                     <strong>{topDiscard ? cardLabel(topDiscard) : "—"}</strong>
                   </div>
-                  <div className="pile-art">{topDiscard ? <span className="card-asset-shell pile-asset-shell"><CardAssetFace card={topDiscard} /></span> : null}</div>
+                  <div className="pile-art">{topDiscard ? <FlatCardFace card={topDiscard} /> : null}</div>
                 </button>
                 <button type="button" disabled={cardState.phase !== "draw" || cardState.discard.length === 0 || !canOperateCardTurn} onClick={drawWholeDiscardPile} className="card-pile discard-pile whole-discard-pile">
                   <span>Full pile</span>
@@ -1933,18 +1962,11 @@ export default function RummyApp() {
                       className={`playing-card svg-playing-card ${selectedCards.includes(card.id) ? "selected" : ""} ${faceSuit === "♥" || faceSuit === "♦" ? "red-card" : ""} ${jokerCard ? "joker-card" : ""}`}
                       aria-label={cardLabel(card)}
                     >
-                      <span className="card-asset-shell"><CardAssetFace card={card} /></span>
+                      <FlatCardFace card={card} />
                     </button>
                   );
                 })}
               </div>
-              </div>
-
-              <div className="card-controls-grid">
-                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length < 3 || !canOperateCardTurn} onClick={makeMeld} className="glass-soft card-action">Make meld</button>
-                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !selectedMeldId || !canOperateCardTurn} onClick={layOffSelected} className="glass-soft card-action">Lay off</button>
-                <button type="button" disabled={!canExchangeJoker || !canOperateCardTurn} onClick={exchangeSelectedJoker} className="glass-soft card-action">Exchange joker</button>
-                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !canOperateCardTurn} onClick={discardSelected} className="glass-soft card-action">Discard</button>
               </div>
 
               </section>
@@ -1969,7 +1991,7 @@ export default function RummyApp() {
                           const isBaseOwner = pointOwnerId === meld.ownerId;
                           return (
                             <span key={card.id} className={`meld-owned-card ${isBaseOwner ? "base-owned-card" : "layoff-owned-card"}`} title={`Points: ${pointOwner?.name || owner?.name || "Player"}`}>
-                              <span className="meld-svg-card"><span className="card-asset-shell"><CardAssetFace card={card} /></span></span>
+                              <span className="meld-svg-card"><FlatCardFace card={card} /></span>
                               <em>{pointOwner?.name || "Player"}</em>
                             </span>
                           );
@@ -1981,6 +2003,13 @@ export default function RummyApp() {
               </div>
 
               </section>
+
+              <div className="card-controls-grid gameplay-bottom-controls">
+                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length < 3 || !canOperateCardTurn} onClick={makeMeld} className="glass-soft card-action">Make meld</button>
+                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !selectedMeldId || !canOperateCardTurn} onClick={layOffSelected} className="glass-soft card-action">Lay off</button>
+                <button type="button" disabled={!canExchangeJoker || !canOperateCardTurn} onClick={exchangeSelectedJoker} className="glass-soft card-action">Exchange joker</button>
+                <button type="button" disabled={cardState.phase !== "play" || selectedHandCards.length !== 1 || !canOperateCardTurn} onClick={discardSelected} className="glass-soft card-action">Discard</button>
+              </div>
 
               <div className="opponent-hands">
                 {game.players.map((player) => (
