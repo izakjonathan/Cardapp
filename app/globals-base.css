@@ -4467,3 +4467,231 @@ body {
     font-size: 22px !important;
   }
 }
+
+/* V189 gameplay-first single-screen redesign + consolidated layout */
+.app.card-table-active .playable-cardgame {
+  max-height: calc(100dvh - 116px) !important;
+  min-height: calc(100dvh - 116px) !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+  padding: 4px 2px 84px !important;
+  gap: 8px !important;
+  scrollbar-width: none;
+}
+
+.app.card-table-active .playable-cardgame::-webkit-scrollbar {
+  display: none;
+}
+
+.app.card-table-active .game-topbar {
+  gap: 6px !important;
+  margin-bottom: 2px !important;
+}
+
+.app.card-table-active .topbar-chip,
+.app.card-table-active .game-status-panel {
+  min-height: 38px !important;
+  padding: 5px 10px !important;
+}
+
+.app.card-table-active .topbar-chip strong,
+.app.card-table-active .turn-chip strong {
+  font-size: 15px !important;
+}
+
+.app.card-table-active .topbar-chip span,
+.app.card-table-active .turn-chip span {
+  font-size: 7px !important;
+}
+
+.app.card-table-active .game-status-panel .primary-card-action {
+  min-height: 30px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+}
+
+.app.card-table-active .seat-selector {
+  min-height: 28px !important;
+  padding: 2px !important;
+  gap: 3px !important;
+}
+
+.app.card-table-active .seat-selector button {
+  min-height: 22px !important;
+  font-size: 11px !important;
+  padding: 0 9px !important;
+}
+
+.app.card-table-active .play-section {
+  gap: 5px !important;
+}
+
+.app.card-table-active .play-section-kicker {
+  font-size: 7px !important;
+  letter-spacing: 0.28em !important;
+}
+
+.app.card-table-active .card-table-row {
+  gap: 6px !important;
+}
+
+.app.card-table-active .card-pile {
+  min-height: 60px !important;
+  padding: 7px 8px !important;
+  border-radius: 16px !important;
+}
+
+.app.card-table-active .card-pile strong,
+.app.card-table-active .deck-pile-card .pile-copy strong {
+  font-size: 24px !important;
+}
+
+.app.card-table-active .deck-pile-card .pile-art {
+  width: 34px !important;
+  height: 49px !important;
+  margin-left: 4px !important;
+}
+
+.app.card-table-active .card-message {
+  min-height: 28px !important;
+  max-height: 36px !important;
+  padding: 5px 9px !important;
+  font-size: 11px !important;
+}
+
+.app.card-table-active {
+  --hand-card-width: 54px;
+  --hand-card-height: 76px;
+  --hand-card-gap: 6px;
+}
+
+.app.card-table-active .hand-scroll-wrap {
+  min-height: calc(var(--hand-card-height) * 2 + 14px) !important;
+  padding: 6px !important;
+}
+
+.app.card-table-active .hand-scroll.two-row-hand {
+  row-gap: 6px !important;
+}
+
+.app.card-table-active .playing-card.svg-playing-card {
+  width: var(--hand-card-width) !important;
+  min-width: var(--hand-card-width) !important;
+  height: var(--hand-card-height) !important;
+  flex: 0 0 var(--hand-card-width) !important;
+}
+
+.app.card-table-active .playing-card .card-svg-single-rank {
+  font-size: 21px !important;
+}
+
+.app.card-table-active .meld-zone {
+  min-height: 96px !important;
+  max-height: 178px !important;
+  overflow-y: auto !important;
+  padding: 6px !important;
+}
+
+.app.card-table-active .mini-help {
+  min-height: 72px !important;
+  font-size: 12px !important;
+  padding: 12px !important;
+}
+
+.app.card-table-active .meld-card {
+  padding: 7px !important;
+  gap: 6px !important;
+}
+
+.app.card-table-active .meld-svg-card,
+.app.card-table-active .meld-owned-card .meld-svg-card {
+  width: 34px !important;
+  min-width: 34px !important;
+  height: 48px !important;
+}
+
+.app.card-table-active .meld-owned-card em {
+  font-size: 7px !important;
+}
+
+.app.card-table-active .gameplay-bottom-controls {
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+  margin-top: 2px !important;
+  padding: 6px 0 max(6px, env(safe-area-inset-bottom)) !important;
+  background: linear-gradient(to top, rgba(241,238,229,0.98) 72%, rgba(241,238,229,0));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 5px !important;
+}
+
+.app.card-table-active .gameplay-bottom-controls .card-action {
+  min-height: 28px !important;
+  padding: 0 5px !important;
+  font-size: 10px !important;
+  border-width: 1.5px !important;
+}
+
+.app.card-table-active .opponent-hands {
+  grid-template-columns: repeat(4, minmax(0,1fr)) !important;
+  gap: 5px !important;
+  margin-top: 0 !important;
+}
+
+.app.card-table-active .opponent-hands > div {
+  min-height: 30px !important;
+  padding: 4px 6px !important;
+}
+
+.app.card-table-active .opponent-hands span {
+  font-size: 9px !important;
+}
+
+.app.card-table-active .opponent-hands strong {
+  font-size: 16px !important;
+}
+
+@media (max-width: 430px) {
+  .app.card-table-active .playable-cardgame {
+    max-height: calc(100dvh - 108px) !important;
+    min-height: calc(100dvh - 108px) !important;
+    padding-bottom: 82px !important;
+  }
+
+  .app.card-table-active .card-table-row {
+    grid-template-columns: 1fr 1fr .85fr !important;
+  }
+
+  .app.card-table-active .gameplay-bottom-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-height: 760px) {
+  .app.card-table-active .playable-cardgame {
+    max-height: calc(100dvh - 102px) !important;
+    min-height: calc(100dvh - 102px) !important;
+    padding-bottom: 80px !important;
+  }
+
+  .app.card-table-active {
+    --hand-card-width: 50px;
+    --hand-card-height: 71px;
+  }
+
+  .app.card-table-active .topbar-chip,
+  .app.card-table-active .game-status-panel {
+    min-height: 36px !important;
+  }
+
+  .app.card-table-active .hand-scroll-wrap {
+    min-height: calc(var(--hand-card-height) * 2 + 12px) !important;
+  }
+
+  .app.card-table-active .meld-zone {
+    min-height: 88px !important;
+    max-height: 148px !important;
+  }
+}
