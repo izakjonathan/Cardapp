@@ -692,33 +692,20 @@ function FlatCardFace({ card }: { card?: Card | null }) {
 
 function SvgCardFace({ card }: { card: Card }) {
   const jokerCard = isJoker(card);
-  const faceSuit = cardFaceSuit(card) as CardFaceSuit;
-  const faceRank = cardFaceRank(card);
-  const assigned = jokerCard && card.asRank && card.asSuit;
+  const faceSuit = (jokerCard ? "★" : cardFaceSuit(card)) as CardFaceSuit;
+  const faceRank = jokerCard ? "JKR" : cardFaceRank(card);
   const tone = suitTone(faceSuit);
-  const showRoyal = ["J", "Q", "K"].includes(faceRank);
-  const cornerSuit = jokerCard && !card.asSuit ? "★" as CardFaceSuit : faceSuit;
 
   return (
-    <svg className={`card-svg detailed-card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
-      <rect className="card-svg-shadow" x="5" y="6" width="90" height="128" rx="13" />
-      <rect className="card-svg-face" x="4" y="4" width="92" height="130" rx="13" />
-      <rect className="card-svg-edge" x="7" y="7" width="86" height="124" rx="11" />
-      <rect className="card-svg-inner" x="11" y="11" width="78" height="116" rx="9" />
-      <CornerIndex rank={jokerCard ? "JKR" : faceRank} suit={cornerSuit} />
-      <CornerIndex rank={jokerCard ? "JKR" : faceRank} suit={cornerSuit} mirrored />
-      {jokerCard ? (
-        <>
-          <JokerMark />
-          <text className="card-svg-joker" x="50" y="115">JOKER</text>
-          {assigned ? <text className={`card-svg-assigned ${isRedSuitValue(card.asSuit) ? "assigned-red" : "assigned-black"}`} x="50" y="124">{card.asRank}{card.asSuit}</text> : null}
-        </>
-      ) : showRoyal ? (
-        <SimpleHonorCenter rank={faceRank} suit={faceSuit} />
-      ) : (
-        <NumberPips rank={faceRank} suit={faceSuit} />
-      )}
-      {!jokerCard && faceRank === "A" ? <path className="card-svg-ace-ring" d="M29 69 C29 54 39 43 50 43 C61 43 71 54 71 69 C71 84 61 95 50 95 C39 95 29 84 29 69 Z" style={{ stroke: `${tone}22` }} /> : null}
+    <svg className={`card-svg minimal-card-svg ${svgToneClass(card)}`} viewBox="0 0 100 140" role="img" aria-label={cardLabel(card)}>
+      <rect className="card-svg-face" x="4" y="4" width="92" height="132" rx="13" />
+      <rect className="card-svg-edge" x="8" y="8" width="84" height="124" rx="11" />
+      <g className="card-svg-single-center">
+        <text className="card-svg-single-rank" x="50" y="58" style={{ fill: tone }}>{faceRank}</text>
+        <g className="card-svg-single-suit" transform="translate(50 88) scale(0.30) translate(-50 -50)" style={{ fill: tone }}>
+          <SuitMark suit={faceSuit} />
+        </g>
+      </g>
     </svg>
   );
 }

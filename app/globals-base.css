@@ -4424,3 +4424,46 @@ body {
   .app.card-table-active .meld-zone { min-height: 112px !important; max-height: 156px !important; }
   .app.card-table-active .card-controls-grid.gameplay-bottom-controls .card-action { min-height: 28px !important; font-size: 10.5px !important; }
 }
+
+/* V188 ultra-simple centered card face */
+.app.card-table-active .playing-card .card-svg-single-center {
+  transform-origin: center;
+}
+
+.app.card-table-active .playing-card .card-svg-single-rank {
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  text-anchor: middle !important;
+  dominant-baseline: middle !important;
+  letter-spacing: 0.01em !important;
+}
+
+.app.card-table-active .playing-card .card-svg-single-suit {
+  opacity: 1 !important;
+}
+
+.app.card-table-active .playing-card .card-svg-single-suit path,
+.app.card-table-active .playing-card .card-svg-single-suit circle {
+  stroke: none !important;
+}
+
+.app.card-table-active .playing-card .card-svg-corner-rank,
+.app.card-table-active .playing-card .card-svg-honor-rank,
+.app.card-table-active .playing-card .card-svg-joker,
+.app.card-table-active .playing-card .card-svg-assigned,
+.app.card-table-active .playing-card .card-svg-center,
+.app.card-table-active .playing-card .joker-cap-red,
+.app.card-table-active .playing-card .joker-cap-black,
+.app.card-table-active .playing-card .joker-cap-gold,
+.app.card-table-active .playing-card .joker-face,
+.app.card-table-active .playing-card .joker-collar,
+.app.card-table-active .playing-card .joker-eye,
+.app.card-table-active .playing-card .joker-smile {
+  display: none !important;
+}
+
+@media (max-width: 430px) {
+  .app.card-table-active .playing-card .card-svg-single-rank {
+    font-size: 22px !important;
+  }
+}
